@@ -1,0 +1,19 @@
+/* Declaramos algunas variables previamente */
+
+sta inicial = "q0";
+sta final = "qf";
+sta[] states = {inicial, final};
+sym nums = "123456789";
+
+/* Declaramos el automata */
+
+dfa myAuto = {
+        states,
+        {"a", "bb", nums},
+        inicial,
+        {final},
+				{
+					{inicial, final, "a"},
+					{final, inicial, nums},
+					{final, final, "bb"}}
+    };
