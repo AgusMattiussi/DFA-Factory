@@ -15,32 +15,70 @@
 
 /* Contextos de Flex. */
 %x COMMENT
+/* %x STRING */
 
 /* Patrones reutilizables. */
-digit			[0-9]
 endline			[\n]
 whitespace		[ \f\n\r\t\v]
+alphanumeric    [a-zA-Z0-9]
 
 %%
-
+/* Contexto COMMENT: No hacer nada con ningun caracter */
 "/*"										{ BEGIN(COMMENT); BeginCommentPatternAction(); }
 <COMMENT>.									{ ; }
 <COMMENT>{endline}							{ ; }
 <COMMENT>"*/"								{ EndCommentPatternAction(); BEGIN(INITIAL); }
 
-"+"											{ return AdditionOperatorPatternAction(yytext); }
-"-"											{ return SubtractionOperatorPatternAction(yytext); }
-"*"											{ return MultiplicationOperatorPatternAction(yytext); }
-"/"											{ return DivisionOperatorPatternAction(yytext); }
+/* Contexto STRING: No hacer nada con ningun caracter */
+/* TODO: Longitud del string? */
+/* "\""                                        { BEGIN(STRING); BeginStringPatternAction(); }
+<STRING>.									{ ; }
+<STRING>{endline}							{ ; }
+<STRING>"\""                                { EndStringPatternAction(); BEGIN(INITIAL); } */
 
-"("											{ return OpenParenthesisPatternAction(yytext); }
-")"											{ return CloseParenthesisPatternAction(yytext); }
+"="                                         { EqualsPatternAction(yytext); }
 
-{digit}+									{ return IntegerPatternAction(yytext, yyleng); }
+";"                                         { SemicolonPatternAction(yytext); }
+
+"{"                                         { OpenCurlyBracketsPatternAction(yytext); }
+
+"}"                                         { CloseCurlyBracketsPatternAction(yytext); }
+
+","                                         { CommaPatternAction(yytext); }
+
+{alphanumeric}+                             { VariablePatternAction(yytext, yyleng); }            
+
+"\"{alphanumeric}+\""                       { StringPatternAction(yytext, yyleng); }   
 
 {whitespace}								{ IgnoredPatternAction(yytext, yyleng); }
 
-.											{ return UnknownPatternAction(yytext, yyleng); }
+/* ================================= OPERACIONES ============================== */
+
+"!"                                         { NotPatternAction(yytext); }
+
+"CHECK"                                     { CheckPatterAction(yytext); }
+
+"ADD"                                       { AddPatternAction(yytext); }
+
+"TO"                                        { ToPatternAction(yytext); }
+
+"REM"                                       { RemPatternAction(yytext); }
+
+"FROM"                                      { FromPatternAction(yytext); }
+
+"JOIN"                                      { JoinPatternAction(yytext);}
+
+"PRINT"                                     { PrintPatternAction(yytext); }
+
+/* ================================= TIPOS DE DATO ============================== */
+
+"sym"                                       { SymbolPatternAction(yytext); } /* { return SYM; } */
+"sym[]"                                     { SymbolArrayPatternAction(yytext); }/* { return SYM_ARRAY; } */
+"sta"                                       { StatePatternAction(yytext); }/* { return STA; } */
+"sta[]"                                     { StateArrayPatternAction(yytext); }/* { return STA_ARRAY; } */
+"trn"                                       { TransitionPatternAction(yytext); }/* { return TRN; } */
+"trn[]"                                     { TransitionArrayPatternAction(yytext); }/* { return TRN_ARRAY; } */
+"dfa"                                       { DFAPatternAction(yytext); }/* { return DFA; } */
 
 %%
 

@@ -1,4 +1,0 @@
-/* declaracion de arreglos */
-
-sym[] ejemplo1 = {"a", "bb", "c"};
-trn[] ejemplo2 = {{"E1", "E2", "a"}, {"E2", "E1", "a"}, {"E1", "E1", "b"}};

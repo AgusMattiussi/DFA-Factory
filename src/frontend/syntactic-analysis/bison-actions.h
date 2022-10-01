@@ -4,6 +4,41 @@
 #include "../../backend/support/shared.h"
 #include "../../backend/semantic-analysis/abstract-syntax-tree.h"
 
+//FIXME: Valor de 1024 esta bien?
+// typedef char state[1024];
+// typedef char symbol[1024];
+
+// struct trn {
+//     state fromState;
+//     state toState;
+//     symbol consumed;
+// };
+
+// //FIXME: valor 100 esta bien?
+// struct symArray{
+//     int size;
+//     symbol symbols[100];
+// };
+
+// struct staArray{
+//     int size;
+//     state states[100];
+// };
+
+// struct trnArray{
+//     int size;
+//     struct trn transitions[100];
+// };
+
+// //FIXME: Punteros?
+// struct dfa{
+//     struct staArray states;
+//     struct symArray alphabet;
+//     state initialState;
+//     struct staArray finalStates;
+//     struct trnArray delta;
+// };
+
 /**
  * Se definen las acciones a ejecutar sobre cada regla de producción de la
  * gramática. El objetivo de cada acción debe ser el de construir el nodo

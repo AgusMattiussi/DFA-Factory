@@ -1,5 +1,6 @@
 #include "../../backend/support/logger.h"
 #include "flex-actions.h"
+#include <string.h>
 #include <stdlib.h>
 
 /**
@@ -26,47 +27,149 @@ void EndCommentPatternAction() {
 	LogDebug("EndCommentPatternAction.");
 }
 
-token AdditionOperatorPatternAction(const char * lexeme) {
-	LogDebug("AdditionOperatorPatternAction: '%s'.", lexeme);
+void BeginStringPatternAction() {
+	LogDebug("BeginStringPatternAction.");
+}
+
+void EndStringPatternAction() {
+	LogDebug("EndStringPatternAction.");
+}
+
+token EqualsPatternAction(const char * lexeme){
+	LogDebug("EqualsPatternAction: '%s'.", lexeme);
+	yylval.token = EQUALS;
+	return EQUALS;
+}
+
+
+token NotPatternAction(const char * lexeme){
+	LogDebug("NotPatternAction: '%s'.", lexeme);
+	yylval.token = NOT;
+	return NOT;
+}
+
+token SemicolonPatternAction(const char * lexeme){
+	LogDebug("SemicolonPatternAction: '%s'.", lexeme);
+	yylval.token = SEMICOLON;
+	return SEMICOLON;
+}
+
+token OpenCurlyBracketsPatternAction(const char * lexeme){
+	LogDebug("OpenCurlyBracketsPatternAction: '%s'.", lexeme);
+	yylval.token = OPEN_CURLY;
+	return OPEN_CURLY;
+}
+
+token CloseCurlyBracketsPatternAction(const char * lexeme){
+	LogDebug("CloseCurlyBracketsPatternAction: '%s'.", lexeme);
+	yylval.token = CLOSE_CURLY;
+	return CLOSE_CURLY;
+}
+
+token CommaPatternAction(const char * lexeme){
+	LogDebug("CommaPatternAction: '%s'.", lexeme);
+	yylval.token = COMMA;
+	return COMMA;
+}
+
+token CheckPatterAction(const char * lexeme){
+	LogDebug("CheckPatternAction: '%s'.", lexeme);
+	yylval.token = CHECK;
+	return CHECK;
+}
+
+token AddPatternAction(const char * lexeme){
+	LogDebug("AddPatternAction: '%s'.", lexeme);
 	yylval.token = ADD;
 	return ADD;
 }
 
-token CloseParenthesisPatternAction(const char * lexeme) {
-	LogDebug("CloseParenthesisPatternAction: '%s'.", lexeme);
-	yylval.token = CLOSE_PARENTHESIS;
-	return CLOSE_PARENTHESIS;
+token ToPatternAction(const char * lexeme){
+	LogDebug("ToPatternAction: '%s'.", lexeme);
+	yylval.token = TO;
+	return TO;
 }
 
-token DivisionOperatorPatternAction(const char * lexeme) {
-	LogDebug("DivisionOperatorPatternAction: '%s'.", lexeme);
-	yylval.token = DIV;
-	return DIV;
+token RemPatternAction(const char * lexeme){
+	LogDebug("RemPatternAction: '%s'.", lexeme);
+	yylval.token = REM;
+	return REM;
 }
 
-token IntegerPatternAction(const char * lexeme, const int length) {
-	LogDebug("IntegerPatternAction: '%s' (length = %d).", lexeme, length);
-	yylval.integer = atoi(lexeme);
-	return INTEGER;
+token FromPatternAction(const char * lexeme){
+	LogDebug("FromPatternAction: '%s'.", lexeme);
+	yylval.token = FROM;
+	return FROM;
 }
 
-token MultiplicationOperatorPatternAction(const char * lexeme) {
-	LogDebug("MultiplicationOperatorPatternAction: '%s'.", lexeme);
-	yylval.token = MUL;
-	return MUL;
+token JoinPatternAction(const char * lexeme){
+	LogDebug("JoinPatternAction: '%s'.", lexeme);
+	yylval.token = JOIN;
+	return JOIN;
 }
 
-token OpenParenthesisPatternAction(const char * lexeme) {
-	LogDebug("OpenParenthesisPatternAction: '%s'.", lexeme);
-	yylval.token = OPEN_PARENTHESIS;
-	return OPEN_PARENTHESIS;
+token PrintPatternAction(const char * lexeme){
+	LogDebug("PrintPatternAction: '%s'.", lexeme);
+	yylval.token = PRINT;
+	return PRINT;
 }
 
-token SubtractionOperatorPatternAction(const char * lexeme) {
-	LogDebug("SubtractionOperatorPatternAction: '%s'.", lexeme);
-	yylval.token = SUB;
-	return SUB;
+token VariablePatternAction(const char * lexeme, const int length){
+	LogDebug("VariablePatternAction: '%s' (length = %d).", lexeme, length);
+	//yylval.strval = strdup(lexeme);
+	yylval.token = VARIABLE;
+	return VARIABLE;
 }
+
+token StringPatternAction(const char * lexeme, const int length){
+	LogDebug("StringPatternAction: '%s' (length = %d).", lexeme, length);
+	//yylval.strval = strdup(lexeme);
+	yylval.token = STRING;
+	return STRING;
+}
+
+token SymbolPatternAction(const char * lexeme){
+	LogDebug("SymbolPatternAction: '%s'.", lexeme);
+	yylval.token = SYMBOL;
+	return SYMBOL;
+}
+
+token SymbolArrayPatternAction(const char * lexeme){
+	LogDebug("SymbolArrayPatternAction: '%s'.", lexeme);
+	yylval.token = SYMBOL_ARRAY;
+	return SYMBOL_ARRAY;
+}
+
+token StatePatternAction(const char * lexeme){
+	LogDebug("StatePatternAction: '%s'.", lexeme);
+	yylval.token = STATE;
+	return STATE;
+}
+
+token StateArrayPatternAction(const char * lexeme){
+	LogDebug("StateArrayPatternAction: '%s'.", lexeme);
+	yylval.token = STATE_ARRAY;
+	return STATE_ARRAY;
+}
+
+token TransitionPatternAction(const char * lexeme){
+	LogDebug("TransitionPatternAction: '%s'.", lexeme);
+	yylval.token = TRANSITION;
+	return TRANSITION;
+}
+
+token TransitionArrayPatternAction(const char * lexeme){
+	LogDebug("TransitionArrayPatternAction: '%s'.", lexeme);
+	yylval.token = TRN_ARR;
+	return TRN_ARR;
+}
+
+token DFAPatternAction(const char * lexeme){
+	LogDebug("DfaPatternAction: '%s'.", lexeme);
+	yylval.token = DFA;
+	return DFA;
+}
+
 
 token UnknownPatternAction(const char * lexeme, const int length) {
 	LogDebug("UnknownPatternAction: '%s' (length = %d).", lexeme, length);

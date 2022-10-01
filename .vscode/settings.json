@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "08-join-two-dfas": "cpp",
+        "flex-actions.h": "c"
+    }
+}

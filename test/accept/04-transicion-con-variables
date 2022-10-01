@@ -1,5 +1,0 @@
-/* declaracion de variables y transicion */
-
-sta EST1 = "Estadote";
-sym unSimbolo = "abcdef";
-trn unaTransicion = {EST1, "Estadito", unSimbolo};

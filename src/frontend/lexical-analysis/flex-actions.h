@@ -24,13 +24,32 @@ void BeginCommentPatternAction();
 void EndCommentPatternAction();
 
 // Patrones terminales del lenguaje diseñado.
-token AdditionOperatorPatternAction(const char * lexeme);
-token CloseParenthesisPatternAction(const char * lexeme);
-token DivisionOperatorPatternAction(const char * lexeme);
-token IntegerPatternAction(const char * lexeme, const int length);
-token MultiplicationOperatorPatternAction(const char * lexeme);
-token OpenParenthesisPatternAction(const char * lexeme);
-token SubtractionOperatorPatternAction(const char * lexeme);
+void BeginStringPatternAction();
+void EndStringPatternAction();
+
+token EqualsPatternAction(const char * lexeme);
+token NotPatternAction(const char * lexeme);
+token SemicolonPatternAction(const char * lexeme);
+token OpenCurlyBracketsPatternAction(const char * lexeme);
+token CloseCurlyBracketsPatternAction(const char * lexeme);
+token CommaPatternAction(const char * lexeme);
+token CheckPatterAction(const char * lexeme);
+token AddPatternAction(const char * lexeme);
+token ToPatternAction(const char * lexeme);
+token RemPatternAction(const char * lexeme);
+token FromPatternAction(const char * lexeme);
+token JoinPatternAction(const char * lexeme);
+token PrintPatternAction(const char * lexeme);
+token VariablePatternAction(const char * lexeme, const int length);
+token StringPatternAction(const char * lexeme, const int length);
+
+token SymbolPatternAction(const char * lexeme);
+token SymbolArrayPatternAction(const char * lexeme);
+token StatePatternAction(const char * lexeme);
+token StateArrayPatternAction(const char * lexeme);
+token TransitionPatternAction(const char * lexeme);
+token TransitionArrayPatternAction(const char * lexeme);
+token DFAPatternAction(const char * lexeme);
 
 // Patrón desconocido, permite abortar debido a un error de sintaxis.
 token UnknownPatternAction(const char * lexeme, const int length);

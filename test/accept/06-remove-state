@@ -1,0 +1,25 @@
+/* Declaramos las variables previamente */
+sta initial = "q0";
+sta final = "qf";
+sta e1 = "q1";
+sta[] states = {inicial, e1, final};
+sta[] finalStates = {final};
+sym nums = "123456789";
+sym[] symbols = {"a", "bb", nums};
+trn[] transitions = {
+	{inicial, e1, "a"},
+	{e1, inicial, nums},
+    {e1, final, "a"},
+	{final, final, "bb"}
+};
+
+/* Declaramos el automata */
+dfa myAuto = {
+        states,
+        symbols,
+        initial,
+        finalStates,
+		transitions
+};
+
+dfa myAuto2 = REM e1 FROM myAuto;

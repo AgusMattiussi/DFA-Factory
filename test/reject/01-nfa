@@ -1,0 +1,14 @@
+sta initial = "q0";
+sta final = "qf";
+state middle = "q1";
+sta[] states = {initial, final, middle};
+sta[] finals = {final};
+sym[] symbols = {"b", "c"};
+trn[] trans = {
+            {initial, middle, "b"},
+            {middle, final, "c"},
+            {initial, final, "b"}
+            };
+
+
+dfa nfauto = {states, symbols, initial, finals, trans};

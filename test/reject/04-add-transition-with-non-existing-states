@@ -1,0 +1,12 @@
+sta initial = "q0";
+sta final = "qf";
+sta[] states = {initial, final};
+sta[] finals = {final};
+sym[] symbols = {"b", "c"};
+trn[] trans = {
+            {initial, final, "b"},
+            {final, final, "c"}
+            };
+
+dfa auto = {states, symbols, initial, finals, trans};
+auto = ADD {"q1", "q2", "b"} TO auto;

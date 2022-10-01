@@ -1,0 +1,19 @@
+sta initial1 = "q1";
+sta final1 = "qf1";
+sta[] states1 = {initial1, final1};
+sta[] finals1 = {final1};
+sym[] symbols1 = {"a"};
+trn[] trans1 = {{initial1, final1, "a"}};
+
+sta initial2 = "q2";
+sta final2 = "qf2";
+sta[] states2 = {initial2, final2};
+sta[] finals2 = {final2};
+sym[] symbols2 = {"b", "c"};
+trn[] trans2 = {{initial2, final2, "c"}};
+
+dfa auto1 = {states1, symbols1, initial1, finals1, trans1};
+dfa auto2 = {states2, symbols2, initial2, finals2, trans2};
+
+dfa auto3 = auto1 JOIN auto2 {final1, inicial2, "b"};
+auto3 CHECK {"a", "b", "c"};
