@@ -1,0 +1,4 @@
+/* declaracion de variables */
+
+sym simbolo = "a";
+sta estado = "q0";

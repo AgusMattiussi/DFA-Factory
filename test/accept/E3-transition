@@ -1,0 +1,3 @@
+/* declaracion de una transicion */
+
+trn transition = {"q0","q3","f"};
