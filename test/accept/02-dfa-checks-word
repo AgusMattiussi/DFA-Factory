@@ -20,4 +20,4 @@ dfa myAuto = {
 				transitions
 };
 
-myauto CHECK {"a", "bb", "bb", "bb"};
+myAuto CHECK {"a", "bb", "bb", "bb"};

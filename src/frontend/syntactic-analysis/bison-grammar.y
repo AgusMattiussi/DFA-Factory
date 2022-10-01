@@ -110,9 +110,28 @@
 %type <print> print;
 
 // Reglas de asociatividad y precedencia (de menor a mayor).
-/* %left ADD SUB
-%left MUL DIV */
-
+%left EQUALS 
+%left NOT 
+%left SEMICOLON  
+%left OPEN_CURLY  
+%left CLOSE_CURLY  
+%left COMMA  
+%left CHECK  
+%left ADD  
+%left TO  
+%left REM  
+%left FROM  
+%left JOIN  
+%left PRINT  
+%left VARIABLE  
+%left STRING  
+%left SYM  
+%left SYM_ARRAY  
+%left STA  
+%left STA_ARRAY  
+%left TRN  
+%left TRN_ARRAY  
+%left DFA
 // El símbolo inicial de la gramatica.
 %start program
 
