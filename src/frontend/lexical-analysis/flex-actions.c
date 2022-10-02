@@ -160,8 +160,8 @@ token TransitionPatternAction(const char * lexeme){
 
 token TransitionArrayPatternAction(const char * lexeme){
 	LogDebug("TransitionArrayPatternAction: '%s'.", lexeme);
-	yylval.token = TRN_ARR;
-	return TRN_ARR;
+	yylval.token = TRN_ARRAY;
+	return TRN_ARRAY;
 }
 
 token DFAPatternAction(const char * lexeme){

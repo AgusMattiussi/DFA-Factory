@@ -19,7 +19,22 @@
 /* Patrones reutilizables. */
 endline			[\n]
 whitespace		[ \f\n\r\t\v]
+/* TODO: Ser mas permisivo con los caracteres para simbolos y estados */
 alphanumeric    [a-zA-Z0-9]
+CHECK           "CHECK"
+ADD             "ADD"
+TO              "TO"
+REM             "REM"
+FROM            "FROM"
+JOIN            "JOIN"
+PRINT           "PRINT"
+sym             "sym"
+symArray        "sym[]"
+sta             "sta"
+staArray        "sta[]"
+trn             "trn"
+trnArray        "trn[]"
+dfa             "dfa"
 
 %%
 "/*"										{ BEGIN(COMMENT); BeginCommentPatternAction(); }
@@ -27,51 +42,53 @@ alphanumeric    [a-zA-Z0-9]
 <COMMENT>{endline}							{ ; }
 <COMMENT>"*/"								{ EndCommentPatternAction(); BEGIN(INITIAL); }
 
-"="                                         { EqualsPatternAction(yytext); }
+"="                                         { return EqualsPatternAction(yytext); }
 
-";"                                         { SemicolonPatternAction(yytext); }
+";"                                         { return SemicolonPatternAction(yytext); }
 
-"{"                                         { OpenCurlyBracketsPatternAction(yytext); }
+"{"                                         { return OpenCurlyBracketsPatternAction(yytext); }
 
-"}"                                         { CloseCurlyBracketsPatternAction(yytext); }
+"}"                                         { return CloseCurlyBracketsPatternAction(yytext); }
 
-","                                         { CommaPatternAction(yytext); }
-
-{alphanumeric}+                             { VariablePatternAction(yytext, yyleng); }            
-
-"\"{alphanumeric}+\""                     { StringPatternAction(yytext, yyleng); }   
+","                                         { return CommaPatternAction(yytext); }
 
 {whitespace}								{ IgnoredPatternAction(yytext, yyleng); }
 
-"!"                                         { NotPatternAction(yytext); }
+"!"                                         { return NotPatternAction(yytext); }
 
-"CHECK"                                     { CheckPatterAction(yytext); }
+{CHECK}                                     { return CheckPatterAction(yytext); }
 
-"ADD"                                       { AddPatternAction(yytext); }
+{ADD}                                       { return AddPatternAction(yytext); }
 
-"TO"                                        { ToPatternAction(yytext); }
+{TO}                                        { return ToPatternAction(yytext); }
 
-"REM"                                       { RemPatternAction(yytext); }
+{REM}                                       { return RemPatternAction(yytext); }
 
-"FROM"                                      { FromPatternAction(yytext); }
+{FROM}                                      { return FromPatternAction(yytext); }
 
-"JOIN"                                      { JoinPatternAction(yytext);}
+{JOIN}                                      { return JoinPatternAction(yytext);}
 
-"PRINT"                                     { PrintPatternAction(yytext); }
+{PRINT}                                     { return PrintPatternAction(yytext); }
 
-"sym"                                       { SymbolPatternAction(yytext); }
+{sym}                                       { return SymbolPatternAction(yytext); }
 
-"sym[]"                                     { SymbolArrayPatternAction(yytext); }
+{symArray}                                  { return SymbolArrayPatternAction(yytext); }
 
-"sta"                                       { StatePatternAction(yytext); }
+{sta}                                       { return StatePatternAction(yytext); }
 
-"sta[]"                                     { StateArrayPatternAction(yytext); }
+{staArray}                                  { return StateArrayPatternAction(yytext); }
 
-"trn"                                       { TransitionPatternAction(yytext); }
+{trn}                                       { return TransitionPatternAction(yytext); }
 
-"trn[]"                                     { TransitionArrayPatternAction(yytext); }
+{trnArray}                                  { return TransitionArrayPatternAction(yytext); }
 
-"dfa"                                       { DFAPatternAction(yytext); }
+{dfa}                                       { return DFAPatternAction(yytext); }
+
+\"{alphanumeric}+\"                         { return StringPatternAction(yytext, yyleng); } 
+
+{alphanumeric}+                             { return VariablePatternAction(yytext, yyleng); }            
+
+.                                           { return UnknownPatternAction(yytext, yyleng); }
 
 %%
 

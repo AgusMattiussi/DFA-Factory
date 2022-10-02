@@ -74,11 +74,11 @@
 %token <token> PRINT
 %token <token> VARIABLE
 %token <token> STRING
-%token <token> SYM
-%token <token> SYM_ARRAY
-%token <token> STA
-%token <token> STA_ARRAY
-%token <token> TRN
+%token <token> SYMBOL
+%token <token> SYMBOL_ARRAY
+%token <token> STATE
+%token <token> STATE_ARRAY
+%token <token> TRANSITION
 %token <token> TRN_ARRAY
 %token <token> DFA
 
@@ -125,11 +125,11 @@
 %left PRINT  
 %left VARIABLE  
 %left STRING  
-%left SYM  
-%left SYM_ARRAY  
-%left STA  
-%left STA_ARRAY  
-%left TRN  
+%left SYMBOL  
+%left SYMBOL_ARRAY  
+%left STATE  
+%left STATE_ARRAY  
+%left TRANSITION  
 %left TRN_ARRAY  
 %left DFA
 // El símbolo inicial de la gramatica.
@@ -168,18 +168,18 @@ decList: dec SEMICOLON decList 														{ }
 	;
 
 dec: symsta VARIABLE EQUALS STRING 													{ } 
-	| TRN VARIABLE EQUALS trnValue 													{ }
+	| TRANSITION VARIABLE EQUALS trnValue 													{ }
 	| symstaArrType VARIABLE EQUALS symstaArrValue 									{ }
 	| TRN_ARRAY VARIABLE EQUALS trnArrValue 										{ }
 	| DFA VARIABLE EQUALS dfaValue 													{ }
 	;
 
-symsta: SYM 																		{ } 
-	| STA 																			{ }
+symsta: SYMBOL 																		{ } 
+	| STATE 																			{ }
 	;
 
-symstaArrType: SYM_ARRAY 															{ }
-	| STA_ARRAY 																	{ }
+symstaArrType: SYMBOL_ARRAY 															{ }
+	| STATE_ARRAY 																	{ }
 	;
 
 trnValue: OPEN_CURLY varVal COMMA varVal COMMA varVal CLOSE_CURLY					{ }
@@ -208,9 +208,9 @@ staArr: STRING COMMA staArr 														{ }
 trnArrValue: OPEN_CURLY trnArr CLOSE_CURLY 											{ }
 	;
 
-trnArr: TRN COMMA trnArr 															{ }
+trnArr: TRANSITION COMMA trnArr 															{ }
 	| VARIABLE COMMA trnArr 														{ }
-	| TRN 																			{ }
+	| TRANSITION 																			{ }
 	| VARIABLE 																		{ }
 	;
 
@@ -265,7 +265,7 @@ print: PRINT STRING 																{ }
 
 /* EXPRESSION: TRANSITION | ...
 
-TRANSITION: TRN NAME OPEN_CURLY VARORSTR COMMA VARORSTR COMMA VARORSTR CLOSE_CURLY
+TRANSITION: TRANSITION NAME OPEN_CURLY VARORSTR COMMA VARORSTR COMMA VARORSTR CLOSE_CURLY
 
 VARORSTR: VARNAME | STR
-TRN: trn */
+TRANSITION: trn */
