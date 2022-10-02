@@ -86,3 +86,13 @@ int IntegerConstantGrammarAction(const int value) {
 	LogDebug("\tIntegerConstantGrammarAction(%d)", value);
 	return value;
 }
+
+void DummyProgramGrammarAction(){
+	state.succeed = true;
+	return;
+}
+
+void DummyGrammarAction(){
+	return;
+}
+

@@ -20,7 +20,7 @@
 endline			[\n]
 whitespace		[ \f\n\r\t\v]
 /* TODO: Ser mas permisivo con los caracteres para simbolos y estados */
-alphanumeric    [a-zA-Z0-9]
+alphanumeric    [a-zA-Z0-9_]
 CHECK           "CHECK"
 ADD             "ADD"
 TO              "TO"

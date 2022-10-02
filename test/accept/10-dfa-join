@@ -12,17 +12,15 @@ sta[] finals2 = {final2};
 sym[] symbols2 = {"a", "b", "c"};
 trn[] trans2 = {{initial2, final2, "c"}};
 
-dfa auto1 = {states1, symbols1, initial1, finals1, trans1};
-dfa auto2 = {states2, symbols2, initial2, finals2, trans2};
+dfa auto_1 = {states1, symbols1, initial1, finals1, trans1};
+dfa auto_2 = {states2, symbols2, initial2, finals2, trans2};
 
-/* Automata 1 chequea la palabra */
-myAuto_1 CHECK {"a", "b", "c"};
+/* COMENTARIOOOOO */
+auto_1 CHECK {"a", "b", "c"};
 
+/* COMENTARIOOOOO */
+auto_2 CHECK {"a", "b", "c"};
 
-/* Automata 2 chequea la palabra */
-myAuto_2 CHECK {"a", "b", "c"};
-
-
-/* Realizo el join y chequeo la palabra */
-dfa auto3 = auto1 JOIN auto2 {final1, inicial2, "b"};
-auto3 CHECK {"a", "b", "c"};
+/* COMENTARIOOOOO */
+dfa auto_3 = auto1 JOIN auto2 {final1, inicial2, "b"};
+auto_3 CHECK {"a", "b", "c"};

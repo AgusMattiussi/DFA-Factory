@@ -1,6 +1,6 @@
 sta initial = "q0";
 sta final = "qf";
-state middle = "q1";
+sta middle = "q1";
 sta[] states = {initial, final, middle};
 sta[] finals = {final};
 sym[] symbols = {"b", "c"};

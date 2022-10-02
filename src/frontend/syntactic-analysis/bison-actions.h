@@ -63,4 +63,7 @@ int ConstantFactorGrammarAction(const int value);
 // Constantes.
 int IntegerConstantGrammarAction(const int value);
 
+void DummyProgramGrammarAction();
+void DummyGrammarAction();
+
 #endif

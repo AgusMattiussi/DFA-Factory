@@ -2,6 +2,7 @@
 #include "flex-actions.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 /**
  * Implementación de "flex-actions.h".

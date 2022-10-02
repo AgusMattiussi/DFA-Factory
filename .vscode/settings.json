@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "08-join-two-dfas": "cpp",
-        "flex-actions.h": "c"
+        "flex-actions.h": "c",
+        "string.h": "c",
+        "logger.h": "c",
+        "bison-actions.h": "c"
     }
 }

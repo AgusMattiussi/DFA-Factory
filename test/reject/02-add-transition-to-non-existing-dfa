@@ -1,4 +1,4 @@
 sta initial = "q0";
 sta final = "qf";
 
-myAuto = ADD {inicial, final, "a"} to myAuto2;
+myAuto = ADD {inicial, final, "a"} TO myAuto2;

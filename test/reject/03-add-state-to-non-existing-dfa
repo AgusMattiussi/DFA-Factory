@@ -1,4 +1,4 @@
 sta initial = "q0";
 sta final = "qf";
 
-myAuto = ADD inicial to myAuto2;
+myAuto = ADD initial TO myAuto2;
