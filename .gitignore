@@ -7,9 +7,20 @@ log/
 obj/
 node_modules/
 
+# VsCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.vscode/settings.json
+**/.vscode/
+
 # Files:
 *.csproj.user
 *~
+.DS_Store
 
 # Project specific:
 bison-parser.c
