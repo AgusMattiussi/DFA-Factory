@@ -29,11 +29,8 @@ FROM            "FROM"
 JOIN            "JOIN"
 PRINT           "PRINT"
 sym             "sym"
-symArray        "sym[]"
 sta             "sta"
-staArray        "sta[]"
 trn             "trn"
-trnArray        "trn[]"
 dfa             "dfa"
 
 %%
@@ -49,6 +46,10 @@ dfa             "dfa"
 "{"                                         { return OpenCurlyBracketsPatternAction(yytext); }
 
 "}"                                         { return CloseCurlyBracketsPatternAction(yytext); }
+
+"["                                         { return OpenBracketsPatternAction(yytext); }
+
+"]"                                         { return CloseBracketsPatternAction(yytext); }
 
 ","                                         { return CommaPatternAction(yytext); }
 
@@ -72,15 +73,9 @@ dfa             "dfa"
 
 {sym}                                       { return SymbolPatternAction(yytext); }
 
-{symArray}                                  { return SymbolArrayPatternAction(yytext); }
-
 {sta}                                       { return StatePatternAction(yytext); }
 
-{staArray}                                  { return StateArrayPatternAction(yytext); }
-
 {trn}                                       { return TransitionPatternAction(yytext); }
-
-{trnArray}                                  { return TransitionArrayPatternAction(yytext); }
 
 {dfa}                                       { return DFAPatternAction(yytext); }
 

@@ -40,6 +40,8 @@
 %token <token> SEMICOLON
 %token <token> OPEN_CURLY
 %token <token> CLOSE_CURLY
+%token <token> OPEN_BRACKETS
+%token <token> CLOSE_BRACKETS
 %token <token> COMMA
 %token <token> CHECK
 %token <token> ADD
@@ -51,11 +53,11 @@
 %token <token> VARIABLE
 %token <token> STRING
 %token <token> SYMBOL
-%token <token> SYMBOL_ARRAY
+/* %token <token> SYMBOL_ARRAY */
 %token <token> STATE
-%token <token> STATE_ARRAY
+/* %token <token> STATE_ARRAY */
 %token <token> TRANSITION
-%token <token> TRN_ARRAY
+/* %token <token> TRN_ARRAY */
 %token <token> DFA
 
 // Tipos de dato para los no-terminales generados desde Bison.
@@ -96,7 +98,7 @@ decOrExec: dec SEMICOLON decOrExec 													{ DummyGrammarAction();  }
 dec: symsta VARIABLE EQUALS STRING 													{ DummyGrammarAction();  } 
 	| TRANSITION VARIABLE EQUALS trnValue 											{ DummyGrammarAction();  }
 	| symstaArrType VARIABLE EQUALS symstaArrValue 									{ DummyGrammarAction();  }
-	| TRN_ARRAY VARIABLE EQUALS trnArrValue 										{ DummyGrammarAction();  }
+	| TRANSITION OPEN_BRACKETS CLOSE_BRACKETS VARIABLE EQUALS trnArrValue 			{ DummyGrammarAction();  }
 	| DFA VARIABLE EQUALS dfaValue 													{ DummyGrammarAction();  }
 	;
 
@@ -104,8 +106,7 @@ symsta: SYMBOL 																		{ DummyGrammarAction();  }
 	| STATE 																		{ DummyGrammarAction();  }
 	;
 
-symstaArrType: SYMBOL_ARRAY 														{ DummyGrammarAction();  }
-	| STATE_ARRAY 																	{ DummyGrammarAction();  }
+symstaArrType: symsta OPEN_BRACKETS CLOSE_BRACKETS  								{ DummyGrammarAction();  }
 	;
 
 trnValue: OPEN_CURLY varVal COMMA varVal COMMA varVal CLOSE_CURLY					{ DummyGrammarAction();  }
@@ -127,9 +128,9 @@ arr: STRING COMMA arr 																{ DummyGrammarAction();  }
 trnArrValue: OPEN_CURLY trnArr CLOSE_CURLY 											{ DummyGrammarAction();  }
 	;
 
-trnArr: VARIABLE COMMA trnArr 													{ DummyGrammarAction();  }
+trnArr: VARIABLE COMMA trnArr 														{ DummyGrammarAction();  }
 	| trnValue COMMA trnArr 														{ DummyGrammarAction();  }
-	| trnValue 																	{ DummyGrammarAction();  }
+	| trnValue 																		{ DummyGrammarAction();  }
 	| VARIABLE 																		{ DummyGrammarAction();  }
 	;
 

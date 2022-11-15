@@ -32,6 +32,8 @@ token NotPatternAction(const char * lexeme);
 token SemicolonPatternAction(const char * lexeme);
 token OpenCurlyBracketsPatternAction(const char * lexeme);
 token CloseCurlyBracketsPatternAction(const char * lexeme);
+token OpenBracketsPatternAction(const char * lexeme);
+token CloseBracketsPatternAction(const char * lexeme);
 token CommaPatternAction(const char * lexeme);
 token CheckPatterAction(const char * lexeme);
 token AddPatternAction(const char * lexeme);
@@ -44,11 +46,11 @@ token VariablePatternAction(const char * lexeme, const int length);
 token StringPatternAction(const char * lexeme, const int length);
 
 token SymbolPatternAction(const char * lexeme);
-token SymbolArrayPatternAction(const char * lexeme);
+// token SymbolArrayPatternAction(const char * lexeme);
 token StatePatternAction(const char * lexeme);
-token StateArrayPatternAction(const char * lexeme);
+// token StateArrayPatternAction(const char * lexeme);
 token TransitionPatternAction(const char * lexeme);
-token TransitionArrayPatternAction(const char * lexeme);
+// token TransitionArrayPatternAction(const char * lexeme);
 token DFAPatternAction(const char * lexeme);
 
 // Patrón desconocido, permite abortar debido a un error de sintaxis.

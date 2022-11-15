@@ -67,6 +67,18 @@ token CloseCurlyBracketsPatternAction(const char * lexeme){
 	return CLOSE_CURLY;
 }
 
+token OpenBracketsPatternAction(const char * lexeme){
+	LogDebug("OpenBracketsPatternAction: '%s'.", lexeme);
+	yylval.token = OPEN_BRACKETS;
+	return OPEN_BRACKETS;
+}
+
+token CloseBracketsPatternAction(const char * lexeme){
+	LogDebug("CloseBracketsPatternAction: '%s'.", lexeme);
+	yylval.token = CLOSE_BRACKETS;
+	return CLOSE_BRACKETS;
+}
+
 token CommaPatternAction(const char * lexeme){
 	LogDebug("CommaPatternAction: '%s'.", lexeme);
 	yylval.token = COMMA;
@@ -135,11 +147,11 @@ token SymbolPatternAction(const char * lexeme){
 	return SYMBOL;
 }
 
-token SymbolArrayPatternAction(const char * lexeme){
+/*token SymbolArrayPatternAction(const char * lexeme){
 	LogDebug("SymbolArrayPatternAction: '%s'.", lexeme);
 	yylval.token = SYMBOL_ARRAY;
 	return SYMBOL_ARRAY;
-}
+}*/
 
 token StatePatternAction(const char * lexeme){
 	LogDebug("StatePatternAction: '%s'.", lexeme);
@@ -147,11 +159,11 @@ token StatePatternAction(const char * lexeme){
 	return STATE;
 }
 
-token StateArrayPatternAction(const char * lexeme){
+/*token StateArrayPatternAction(const char * lexeme){
 	LogDebug("StateArrayPatternAction: '%s'.", lexeme);
 	yylval.token = STATE_ARRAY;
 	return STATE_ARRAY;
-}
+}*/
 
 token TransitionPatternAction(const char * lexeme){
 	LogDebug("TransitionPatternAction: '%s'.", lexeme);
@@ -159,11 +171,11 @@ token TransitionPatternAction(const char * lexeme){
 	return TRANSITION;
 }
 
-token TransitionArrayPatternAction(const char * lexeme){
+/*token TransitionArrayPatternAction(const char * lexeme){
 	LogDebug("TransitionArrayPatternAction: '%s'.", lexeme);
 	yylval.token = TRN_ARRAY;
 	return TRN_ARRAY;
-}
+}*/
 
 token DFAPatternAction(const char * lexeme){
 	LogDebug("DfaPatternAction: '%s'.", lexeme);
@@ -183,3 +195,5 @@ void IgnoredPatternAction(const char * lexeme, const int length) {
 	LogDebug("IgnoredPatternAction: '%s' (length = %d).", lexeme, length);
 	// Como no debe hacer nada con el patrón, solo se loguea en consola.
 }
+
+
