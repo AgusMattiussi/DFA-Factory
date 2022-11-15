@@ -30,10 +30,12 @@ void EndCommentPatternAction() {
 
 void BeginStringPatternAction() {
 	LogDebug("BeginStringPatternAction.");
+	// return BEGIN_STRING;
 }
 
 void EndStringPatternAction() {
 	LogDebug("EndStringPatternAction.");
+	// return END_STRING;
 }
 
 token EqualsPatternAction(const char * lexeme){
@@ -147,35 +149,17 @@ token SymbolPatternAction(const char * lexeme){
 	return SYMBOL;
 }
 
-/*token SymbolArrayPatternAction(const char * lexeme){
-	LogDebug("SymbolArrayPatternAction: '%s'.", lexeme);
-	yylval.token = SYMBOL_ARRAY;
-	return SYMBOL_ARRAY;
-}*/
-
 token StatePatternAction(const char * lexeme){
 	LogDebug("StatePatternAction: '%s'.", lexeme);
 	yylval.token = STATE;
 	return STATE;
 }
 
-/*token StateArrayPatternAction(const char * lexeme){
-	LogDebug("StateArrayPatternAction: '%s'.", lexeme);
-	yylval.token = STATE_ARRAY;
-	return STATE_ARRAY;
-}*/
-
 token TransitionPatternAction(const char * lexeme){
 	LogDebug("TransitionPatternAction: '%s'.", lexeme);
 	yylval.token = TRANSITION;
 	return TRANSITION;
 }
-
-/*token TransitionArrayPatternAction(const char * lexeme){
-	LogDebug("TransitionArrayPatternAction: '%s'.", lexeme);
-	yylval.token = TRN_ARRAY;
-	return TRN_ARRAY;
-}*/
 
 token DFAPatternAction(const char * lexeme){
 	LogDebug("DfaPatternAction: '%s'.", lexeme);

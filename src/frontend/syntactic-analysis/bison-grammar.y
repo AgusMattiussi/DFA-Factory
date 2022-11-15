@@ -22,11 +22,13 @@
 
 	int dec;
 	int exec;
+	int addOperand;
 	int add;
 	int rem; 
 	int check;
 	int complement; 
 	int join;
+	int trnValueOrVar;
 	int print;
 
 	// Terminales.
@@ -35,6 +37,8 @@
 }
 
 // IDs y tipos de los tokens terminales generados desde Flex.
+// %token <token> BEGIN_STRING
+// %token <token> END_STRING
 %token <token> EQUALS
 %token <token> NOT
 %token <token> SEMICOLON
@@ -53,11 +57,8 @@
 %token <token> VARIABLE
 %token <token> STRING
 %token <token> SYMBOL
-/* %token <token> SYMBOL_ARRAY */
 %token <token> STATE
-/* %token <token> STATE_ARRAY */
 %token <token> TRANSITION
-/* %token <token> TRN_ARRAY */
 %token <token> DFA
 
 // Tipos de dato para los no-terminales generados desde Bison.
@@ -75,10 +76,12 @@
 %type <dfaValue> dfaValue;
 %type <exec> exec;
 %type <add> add;
+%type <addOperand> addOperand;
 %type <rem> rem; 
 %type <check> check;
 %type <complement> complement; 
 %type <join> join;
+%type <trnValueOrVar> trnValueOrVar;
 %type <print> print;
 
 // El símbolo inicial de la gramatica.
@@ -119,20 +122,18 @@ varVal: VARIABLE 																	{ DummyGrammarAction();  }
 symstaArrValue: OPEN_CURLY arr CLOSE_CURLY 											{ DummyGrammarAction();  }
 	;
 
-arr: STRING COMMA arr 																{ DummyGrammarAction();  }
-	| VARIABLE COMMA arr 															{ DummyGrammarAction();  }
-	| STRING  																		{ DummyGrammarAction();  }
-	| VARIABLE 																		{ DummyGrammarAction();  }
-	;
+
+arr: varVal COMMA arr																{ DummyGrammarAction();  }
+	| varVal																		{ DummyGrammarAction();  }
+	;  
 	
 trnArrValue: OPEN_CURLY trnArr CLOSE_CURLY 											{ DummyGrammarAction();  }
 	;
 
-trnArr: VARIABLE COMMA trnArr 														{ DummyGrammarAction();  }
-	| trnValue COMMA trnArr 														{ DummyGrammarAction();  }
-	| trnValue 																		{ DummyGrammarAction();  }
-	| VARIABLE 																		{ DummyGrammarAction();  }
+trnArr: trnValueOrVar COMMA trnArr 														{ DummyGrammarAction();  }														{ DummyGrammarAction();  }
+	| trnValueOrVar 																	{ DummyGrammarAction();  }
 	;
+
 
 dfaValue: OPEN_CURLY VARIABLE COMMA VARIABLE COMMA VARIABLE COMMA VARIABLE COMMA VARIABLE CLOSE_CURLY	{ DummyGrammarAction();  }
 	;
@@ -153,28 +154,30 @@ check: VARIABLE CHECK symstaArrValue 												{ DummyGrammarAction();  }
 	| VARIABLE CHECK VARIABLE 														{ DummyGrammarAction();  }
 	;
 
-add: DFA VARIABLE EQUALS ADD trnValue TO VARIABLE 									{ DummyGrammarAction();  }
-	| DFA VARIABLE EQUALS ADD VARIABLE TO VARIABLE									{ DummyGrammarAction();  }
-	| DFA VARIABLE EQUALS ADD STRING TO VARIABLE									{ DummyGrammarAction();  }
-	| VARIABLE EQUALS ADD trnValue TO VARIABLE 										{ DummyGrammarAction();  }
-	| VARIABLE EQUALS ADD VARIABLE TO VARIABLE										{ DummyGrammarAction();  }
-	| VARIABLE EQUALS ADD STRING TO VARIABLE										{ DummyGrammarAction();  }								
-	;
+add: DFA VARIABLE EQUALS ADD addOperand TO VARIABLE									{ DummyGrammarAction();  }
+ 	|  VARIABLE EQUALS ADD addOperand TO VARIABLE									{ DummyGrammarAction();  }
+ ;
 
-rem: DFA VARIABLE EQUALS REM STRING FROM VARIABLE 									{ DummyGrammarAction();  }
-	| DFA VARIABLE EQUALS REM VARIABLE FROM VARIABLE 								{ DummyGrammarAction();  }
-	| VARIABLE EQUALS REM STRING FROM VARIABLE 										{ DummyGrammarAction();  }
-	| VARIABLE EQUALS REM VARIABLE FROM VARIABLE 									{ DummyGrammarAction();  }
+addOperand: trnValue																{ DummyGrammarAction();  }
+	| varVal																		{ DummyGrammarAction();  }
+	;	
+
+
+rem: DFA VARIABLE EQUALS REM varVal FROM VARIABLE									{ DummyGrammarAction();  }
+	| VARIABLE EQUALS REM varVal FROM VARIABLE										{ DummyGrammarAction();  }
 	;
+ 
 
 complement: DFA VARIABLE EQUALS NOT VARIABLE 										{ DummyGrammarAction();  }
 	| VARIABLE EQUALS NOT VARIABLE 													{ DummyGrammarAction();  }
 	;
 
-join: DFA VARIABLE EQUALS VARIABLE JOIN VARIABLE VARIABLE 							{ DummyGrammarAction();  }
-	| DFA VARIABLE EQUALS VARIABLE JOIN VARIABLE trnValue 							{ DummyGrammarAction();  }
-	| VARIABLE EQUALS VARIABLE JOIN VARIABLE VARIABLE 								{ DummyGrammarAction();  }
-	| VARIABLE EQUALS VARIABLE JOIN VARIABLE trnValue 								{ DummyGrammarAction();  }
+
+join: DFA VARIABLE EQUALS VARIABLE JOIN VARIABLE trnValueOrVar						{ DummyGrammarAction();  }
+	| VARIABLE EQUALS VARIABLE JOIN VARIABLE trnValueOrVar							{ DummyGrammarAction();  }
+
+trnValueOrVar: VARIABLE																{ DummyGrammarAction();  }
+	| trnValue																		{ DummyGrammarAction();  }
 	;
 
 print: PRINT STRING 																{ DummyGrammarAction();  }

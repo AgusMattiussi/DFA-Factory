@@ -15,6 +15,7 @@
 
 /* Contextos de Flex. */
 %x COMMENT
+/* %x STRING */
 
 /* Patrones reutilizables. */
 endline			[\n]
@@ -32,6 +33,13 @@ sym             "sym"
 sta             "sta"
 trn             "trn"
 dfa             "dfa"
+
+/* TODO: chequear contexto de strings
+"\""										{ BEGIN(STRING); return BeginStringPatternAction(); }
+<STRING>.									{ ; }
+<STRING>{endline}							{ ; }
+<STRING>"\""								{ return EndStringPatternAction(); BEGIN(INITIAL); }
+*/
 
 %%
 "/*"										{ BEGIN(COMMENT); BeginCommentPatternAction(); }
