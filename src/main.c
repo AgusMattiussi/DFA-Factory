@@ -2,6 +2,7 @@
 #include "backend/support/logger.h"
 #include "backend/support/shared.h"
 #include "frontend/syntactic-analysis/bison-parser.h"
+#include "backend/support/symTable.h"
 #include <stdio.h>
 
 // Estado de la aplicación.
@@ -13,6 +14,7 @@ const int main(const int argumentCount, const char ** arguments) {
 	state.program = NULL;
 	state.result = 0;
 	state.succeed = false;
+	state.symbolTable = initSymbolTable();
 
 	// Mostrar parámetros recibidos por consola.
 	for (int i = 0; i < argumentCount; ++i) {

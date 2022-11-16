@@ -4,6 +4,10 @@
         "flex-actions.h": "c",
         "string.h": "c",
         "logger.h": "c",
-        "bison-actions.h": "c"
+        "bison-actions.h": "c",
+        "shared.h": "c",
+        "stdio.h": "c",
+        "calculator.h": "c",
+        "abstract-syntax-tree.h": "c"
     }
 }

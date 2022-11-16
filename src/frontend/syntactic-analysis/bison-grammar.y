@@ -33,7 +33,8 @@
 
 	// Terminales.
 	token token;
-
+	char * string;
+	Variable variable;
 }
 
 // IDs y tipos de los tokens terminales generados desde Flex.
@@ -54,8 +55,8 @@
 %token <token> FROM
 %token <token> JOIN
 %token <token> PRINT
-%token <token> VARIABLE
-%token <token> STRING
+%token <variable> VARIABLE
+%token <string> STRING
 %token <token> SYMBOL
 %token <token> STATE
 %token <token> TRANSITION
@@ -97,88 +98,98 @@ decOrExec: dec SEMICOLON decOrExec 													{ DummyGrammarAction();  }
 	| /* lambda */ 																	{ DummyGrammarAction();  }
 	;
 
-dec: symOrState VARIABLE EQUALS STRING 													{ DummyGrammarAction();  } 
-	| TRANSITION VARIABLE EQUALS transition 											{ DummyGrammarAction();  }
+dec: symOrState VARIABLE EQUALS STRING 												{ DummyGrammarAction();  } 
+	| TRANSITION VARIABLE EQUALS transition 										{ DummyGrammarAction();  }
 	| symOrStaArr VARIABLE EQUALS symstaArrValue 									{ DummyGrammarAction();  }
 	| TRANSITION OPEN_BRACKETS CLOSE_BRACKETS VARIABLE EQUALS trnArrValue 			{ DummyGrammarAction();  }
 	| DFA VARIABLE EQUALS dfaValue 													{ DummyGrammarAction();  }
 	;
 
-symOrState: SYMBOL 																		{ DummyGrammarAction();  } 
-	| STATE 																		{ DummyGrammarAction();  }
+symOrState: SYMBOL 																	{ $$ = SymbolGrammarAction();  } 
+	| STATE 																		{ $$ = StateGrammarAction();  }
 	;
 
 symOrStaArr: symOrState OPEN_BRACKETS CLOSE_BRACKETS  								{ DummyGrammarAction();  }
 	;
 
-transition: OPEN_CURLY varOrString COMMA varOrString COMMA varOrString CLOSE_CURLY					{ DummyGrammarAction();  }
+transition: OPEN_CURLY varOrString COMMA varOrString COMMA varOrString CLOSE_CURLY		{ DummyGrammarAction();  }
 	;
 
-varOrString: VARIABLE 																	{ DummyGrammarAction();  }
-	| STRING 																		{ DummyGrammarAction();  }
+varOrString: VARIABLE 																{ $$ = VariableGrammarAction($1);  }
+	| STRING 																		{ $$ = StringGrammarAction($1);  }
 	;
 
-symstaArrValue: OPEN_CURLY arr CLOSE_CURLY 											{ DummyGrammarAction();  }
+symstaArrValue: OPEN_CURLY arr[array] CLOSE_CURLY 									{ $$ = SymstaArrValuegGrammarAction($array);  }
 	;
 
 
-arr: varOrString COMMA arr																{ DummyGrammarAction();  }
-	| varOrString																		{ DummyGrammarAction();  }
+arr: varOrString COMMA arr															{ DummyGrammarAction();  }
+	| varOrString																	{ DummyGrammarAction();  }
 	;  
 	
 trnArrValue: OPEN_CURLY trnArr CLOSE_CURLY 											{ DummyGrammarAction();  }
 	;
 
-trnArr: transitionOrVar COMMA trnArr 														{ DummyGrammarAction();  }														{ DummyGrammarAction();  }
-	| transitionOrVar 																	{ DummyGrammarAction();  }
+trnArr: transitionOrVar COMMA trnArr 												{ DummyGrammarAction();  }
+	| transitionOrVar 																{ $$ = TrnArrNoNext($1);  }
 	;
 
 
-dfaValue: OPEN_CURLY VARIABLE COMMA VARIABLE COMMA VARIABLE COMMA VARIABLE COMMA VARIABLE CLOSE_CURLY	{ DummyGrammarAction();  }
+dfaValue: OPEN_CURLY VARIABLE[states] COMMA VARIABLE[symbols] 
+		COMMA VARIABLE[startState] COMMA VARIABLE[endStates] COMMA
+		VARIABLE[trns] CLOSE_CURLY													{ $$ = DfaValueGrammarAction($states, $symbols, $startState, $endStates, $trns); }
 	;
-// {estados, simbolos, simbolo inicial, finales, transiciones}
+// {estados, simbolos, estado inicial, finales, transiciones}
 
 
 /* ==== Prestaciones ==== */
 
-exec: add 																			{ DummyGrammarAction();  }
-	| rem 																			{ DummyGrammarAction();  }
-	| check 																		{ DummyGrammarAction();  }
-	| complement 																	{ DummyGrammarAction();  }
-	| join 																			{ DummyGrammarAction();  }
-	| print																			{ DummyGrammarAction();  }
+exec: add 																			{ $$ = ExecAddGrammarAction($1);  }
+	| rem 																			{ $$ = ExecRemGrammarAction($1);  }
+	| check 																		{ $$ = ExecCheckGrammarAction($1);  }
+	| complement 																	{ $$ = ExecComplementGrammarAction($1);  }
+	| join 																			{ $$ = ExecJoinGrammarAction($1); }
+	| print																			{ $$ = ExecPrintGrammarAction($1);  }
 	; 																				
 
-check: VARIABLE CHECK symstaArrValue 												{ DummyGrammarAction();  }	
-	| VARIABLE CHECK VARIABLE 														{ DummyGrammarAction();  }
+check: VARIABLE[variable] CHECK symstaArrValue[ssav] 								{ $$ = CheckSymStaArrValueGrammarAction($variable, $ssav);  }	
+	| VARIABLE[variable] CHECK VARIABLE[rightOperand] 								{ $$ = CheckVariableGrammarAction($variable, $rightOperand);  }
 	;
 
-add: DFA VARIABLE EQUALS ADD addOperand TO VARIABLE									{ DummyGrammarAction();  }
- 	|  VARIABLE EQUALS ADD addOperand TO VARIABLE									{ DummyGrammarAction();  }
+
+add: DFA VARIABLE[resultDFA] EQUALS ADD addOperand[leftOperand]
+	 TO VARIABLE[rightOperand]														{ $$ = NotExistingDFAAddGrammarAction($resultDFA, $leftOperand, $rightOperand);  }
+ 	|  VARIABLE[resultDFA] EQUALS ADD addOperand[leftOperand]
+	 TO VARIABLE[rightOperand]	 													{ $$ = ExistingDFAAddGrammarAction($resultDFA, $leftOperand, $rightOperand);  }
  ;
 
-addOperand: transition																{ DummyGrammarAction();  }
-	| varOrString																	{ DummyGrammarAction();  }
+addOperand: transition																{ $$ = AddOperandTransitionGrammarAction($1);  }
+	| varOrString																	{ $$ = AddOperandVarOrStringGrammarAction($1);  }
 	;	
 
 
-rem: DFA VARIABLE EQUALS REM varOrString FROM VARIABLE								{ DummyGrammarAction();  }
-	| VARIABLE EQUALS REM varOrString FROM VARIABLE									{ DummyGrammarAction();  }
+rem: DFA VARIABLE[resultDFA] EQUALS REM varOrString[varOrStr]
+	 FROM VARIABLE[from]															{ $$ = NotExistingDFARemGrammarAction($resultDFA, $varOrStr, $from);  }
+	| VARIABLE[resultDFA] EQUALS REM varOrString[varOrStr]
+	 FROM VARIABLE[from]															{ $$ = ExistingDFARemGrammarAction($resultDFA, $varOrStr, $from);  }
 	;
  
 
-complement: DFA VARIABLE EQUALS NOT VARIABLE 										{ DummyGrammarAction();  }
-	| VARIABLE EQUALS NOT VARIABLE 													{ DummyGrammarAction();  }
+complement: DFA VARIABLE[variable] EQUALS NOT VARIABLE[notVariable]  				{ $$ = NotExistingDFAComplementGrammarAction($variable, $notVariable);  }
+	| VARIABLE[variable] EQUALS NOT VARIABLE[notVariable] 							{ $$ = ExistingDFAComplementGrammarAction($variable, $notVariable);  }
 	;
 
 
-join: DFA VARIABLE EQUALS VARIABLE JOIN VARIABLE transitionOrVar					{ DummyGrammarAction();  }
-	| VARIABLE EQUALS VARIABLE JOIN VARIABLE transitionOrVar						{ DummyGrammarAction();  }
-
-transitionOrVar: VARIABLE															{ DummyGrammarAction();  }
-	| transition																	{ DummyGrammarAction();  }
+join: DFA VARIABLE[resultDFA] EQUALS VARIABLE[leftDFA] JOIN
+		 VARIABLE[resultDFA] transitionOrVar[tov]									{ $$ = NotExistingDFAJoinGrammarAction($resultDFA, $leftDfa, $rightDFA, $tov);  }
+	| VARIABLE[resultDFA] EQUALS VARIABLE[leftDFA] JOIN
+	 	VARIABLE[rightDFA] transitionOrVar[tov]										{ $$ = ExistingDFAJoinGrammarAction($resultDFA, $leftDfa, $rightDFA, $tov);  }
 	;
 
-print: PRINT STRING 																{ DummyGrammarAction();  }
+transitionOrVar: VARIABLE															{ $$ = TOVVariableGrammarAction($1);  }
+	| transition																	{ $$ = TOVTransitionGrammarAction($1);  }
+	;
+
+print: PRINT STRING 																{ $$ = PrintGrammarAction($2);  }
 	;
 %%

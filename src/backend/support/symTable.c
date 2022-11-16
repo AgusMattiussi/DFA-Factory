@@ -8,6 +8,7 @@ static void freeEntry(entry * firstEntry){
     if (firstEntry == NULL)
            return;
     freeEntry(firstEntry->next);
+    free(firstEntry->variableName);
     free(firstEntry);
 }
 

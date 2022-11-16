@@ -127,7 +127,6 @@ typedef struct VarOrString {
 		Variable * variable;
 		String * string;
 	};
-
 } VarOrString;
 
 typedef struct Transition {
@@ -137,11 +136,7 @@ typedef struct Transition {
 } Transition;
 
 struct TransitionArr{
-	enum TransitionOrVarType type;
-	union ta_value {
-		Transition * transition;
-		Variable * variable;
-	};
+	TransitionOrVar * transitionOrVar;
 	TransitionArr * next;
 };
 
