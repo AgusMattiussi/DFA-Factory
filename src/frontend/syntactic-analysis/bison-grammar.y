@@ -7,33 +7,33 @@
 // Tipos de dato utilizados en las variables semánticas ($$, $1, $2, etc.).
 %union {
 	// No-terminales (frontend).
-	int program;
-	int DecOrExec;
+	Program * program;
+	DecOrExec * decOrExec;
 
-	int symOrState;
-	int symOrStaArr;
-	int Transition;
-	int varOrString;
-	int symstaArrValue;
-	int arr;
-	int TrnArrValue;
-	int TransitionArr;
-	int dfaValue;
+	SymOrState * symOrState;
+	SymOrStaArr * symOrStaArr;
+	Transition * transition;
+	VarOrString * varOrString;
+	SymOrStaArrValue * symstaArrValue;
+	Array * arr;
+	TrnArrValue * trnArrValue;
+	TransitionArr * transitionArr;
+	DfaValue * dfaValue;
 
-	int Declaration;
-	int Exec;
-	int addOperand;
-	int add;
-	int rem; 
-	int check;
-	int complement; 
-	int join;
-	int TransitionOrVar;
-	int print;
+	Declaration * declaration;
+	Exec * exec;
+	AddOperand * addOperand;
+	Add * add;
+	Rem * rem; 
+	Check * check;
+	Complement * complement; 
+	Join * join;
+	TransitionOrVar * transitionOrVar;
+	Print * print;
 
 	// Terminales.
 	token token;
-	
+
 }
 
 // IDs y tipos de los tokens terminales generados desde Flex.
@@ -63,30 +63,29 @@
 
 // Tipos de dato para los no-terminales generados desde Bison.
 %type <program> program
-%type <DecOrExec> decOrExec;
-%type <Declaration> dec;
+%type <decOrExec> decOrExec;
+%type <declaration> dec;
 %type <symOrState> symOrState;
 %type <symOrStaArr> symOrStaArr;
-%type <Transition> transition;
+%type <transition> transition;
 %type <varOrString> varOrString;
 %type <symstaArrValue> symstaArrValue;
 %type <arr> arr;
-%type <TrnArrValue> trnArrValue;
-%type <TransitionArr> trnArr;
+%type <trnArrValue> trnArrValue;
+%type <transitionArr> trnArr;
 %type <dfaValue> dfaValue;
-%type <Exec> exec;
+%type <exec> exec;
 %type <add> add;
 %type <addOperand> addOperand;
 %type <rem> rem; 
 %type <check> check;
 %type <complement> complement; 
 %type <join> join;
-%type <TransitionOrVar> transitionOrVar;
+%type <transitionOrVar> transitionOrVar;
 %type <print> print;
 
 // El símbolo inicial de la gramatica.
 %start program
-
 %%
 
 program: decOrExec				 													{ DummyProgramGrammarAction();  }

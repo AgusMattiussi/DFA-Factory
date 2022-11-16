@@ -112,16 +112,16 @@ typedef enum  {
 //=======================================================================
 
 /* Busco el tipo de dato en la tabla de simbolos con este nombre*/
-typedef struct {
+typedef struct Variable {
 	char * value;
 } Variable;
 
 /* La diferencia con 'Variable' es que 'String' tiene comillas*/
-typedef struct {
+typedef struct String {
 	char * value;
 } String;
 
-typedef struct {
+typedef struct VarOrString {
 	enum VarOrStringType type;
 	union vos_value {
 		Variable * variable;
@@ -130,13 +130,13 @@ typedef struct {
 
 } VarOrString;
 
-typedef struct {
+typedef struct Transition {
 	VarOrString * stateFrom;
 	VarOrString * stateTo;
 	VarOrString * symbol;
 } Transition;
 
-struct TransitionArr {
+struct TransitionArr{
 	enum TransitionOrVarType type;
 	union ta_value {
 		Transition * transition;
@@ -145,7 +145,7 @@ struct TransitionArr {
 	TransitionArr * next;
 };
 
-typedef struct {
+typedef struct TrnArrValue {
 	TransitionArr * transitionArr;
 } TrnArrValue;
 
@@ -154,17 +154,19 @@ struct Array {
 	Array * next;
 };
 
-typedef struct {
+typedef struct SymOrStaArrValue {
 	Array * array;
 } SymOrStaArrValue;
 
-typedef struct {
+typedef struct SymOrState {
 	enum SymOrStateType type;
+} SymOrState;
+
+typedef struct SymOrStaArr {
+	SymOrState * symOrState;
 } SymOrStaArr;
 
-
-
-typedef struct {
+typedef struct DfaValue {
 	Variable * states;
 	Variable * symbols;
 	Variable * initial;
@@ -172,10 +174,11 @@ typedef struct {
 	Variable * transitions;
 } DfaValue;
 
-typedef struct {
+typedef struct Declaration {
 	enum DecValueType type;
 	Variable * variable;
 	SymOrStaArr * symOrStaArr;
+	SymOrState * symOrState;
 	union d_value {
 		DfaValue * dfa;
 		Transition * transition;
@@ -185,7 +188,7 @@ typedef struct {
 	};
 } Declaration;
 
-typedef struct {
+typedef struct AddOperand {
 	enum TransitionVarOrStringType type;
 	union ao_value {
 		Transition * transition;
@@ -193,7 +196,7 @@ typedef struct {
 	};
 } AddOperand;
 
-typedef struct {
+typedef struct Check {
 	enum SymStateArrOrVarType type;
 	Variable * variable;
 	union c_value {
@@ -202,11 +205,11 @@ typedef struct {
 	};
 } Check;
 
-typedef struct {
+typedef struct Print {
 	String * string;
 } Print;
 
-typedef struct {
+typedef struct Add {
 	Variable * variable;
 	AddOperand * leftOperand;
 	Variable * rightOperand;
@@ -218,7 +221,7 @@ typedef struct {
 	Variable * from;
 } Rem;
 
-typedef struct {
+typedef struct Complement {
 	Variable * variable;
 	Variable * notVariable;
 } Complement;
@@ -231,14 +234,14 @@ typedef struct {
 	};
 } TransitionOrVar;
 
-typedef struct {
+typedef struct Join {
 	Variable * dfaVariable;
 	Variable * leftOperand;
 	Variable * rightOperand;
 	TransitionOrVar * transitionOrVar;
 } Join;
 
-typedef struct {
+typedef struct Exec {
 	enum ExecValueType type;
 	union e_value {
 		Add * add;
@@ -259,7 +262,7 @@ struct DecOrExec{
 	DecOrExec * next;
 }; 
 
-typedef struct {
+typedef struct Program {
 	DecOrExec * decOrExec;
 } Program; 
 
