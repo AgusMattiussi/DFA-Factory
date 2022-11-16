@@ -49,7 +49,7 @@ int ProgramGrammarAction(const int value) {
 
 int AdditionExpressionGrammarAction(const int leftValue, const int rightValue) {
 	LogDebug("\tAdditionExpressionGrammarAction(%d, %d)", leftValue, rightValue);
-	return Add(leftValue, rightValue);
+	return Addition(leftValue, rightValue);
 }
 
 int SubtractionExpressionGrammarAction(const int leftValue, const int rightValue) {

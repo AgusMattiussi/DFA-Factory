@@ -8,7 +8,7 @@
 * ser posible calcular algo utilizando estas funciones directamente.
 */
 
-int Add(const int leftAddend, const int rightAddend);
+int Addition(const int leftAddend, const int rightAddend);
 
 int Subtract(const int minuend, const int subtract);
 

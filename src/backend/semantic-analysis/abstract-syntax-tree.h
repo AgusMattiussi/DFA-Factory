@@ -6,15 +6,15 @@
 * auto-referenciarse, como es el caso de una "Expression", que está compuesta
 * de otras 2 expresiones.
 */
-typedef struct Expression Expression;
+//typedef struct Expression Expression;
 
 /**
 * Para cada no-terminal se define una nueva estructura que representa su tipo
 * de dato y, por lo tanto, su nodo en el AST (Árbol de Sintaxis Abstracta).
 */
-typedef struct {
+/* typedef struct {
 	int value;
-} Constant;
+} Constant; */
 
 /**
 * En caso de que un no-terminal ("Factor" en este caso), posea más de una
@@ -25,7 +25,7 @@ typedef struct {
 * De este modo, al recorrer el AST, es posible determinar qué nodos hijos
 * posee según el valor de este enumerado.
 */
-typedef enum {
+/* typedef enum {
 	EXPRESSION,
 	CONSTANT
 } FactorType;
@@ -36,7 +36,7 @@ typedef struct {
 } Factor;
 
 typedef enum {
-	ADDITION,
+	Add,
 	SUBTRACTION,
 	MULTIPLICATION,
 	DIVISION,
@@ -45,12 +45,222 @@ typedef enum {
 
 struct Expression {
 	ExpressionType type;
+	
 	Expression * leftExpression;
 	Expression * rightExpression;
 };
 
 typedef struct {
 	Expression * expression;
-} Program;
+} Program; */
+
+/* ===================== DFA Factory AST ============================ */
+
+typedef struct DecOrExec DecOrExec;
+typedef struct TransitionArr TransitionArr;
+typedef struct Array Array;
+
+typedef enum  {
+	DFA_DVT,
+	TRANS_DVT,
+	TRN_ARRAY_DVT,
+	SYMSTA_ARR_DVT,
+	STRING_DVT
+} DecValueType;
+
+typedef enum  {
+	ADD_EVT,
+	REM_EVT,
+	CHECK_EVT,
+	COMPLEMENT_EVT,
+	JOIN_EVT,
+	PRINT_EVT
+} ExecValueType;
+
+typedef enum  {
+	DEC_DOET,
+	EXEC_DOET
+} DecOrExecType;
+
+typedef enum  {
+	VAR_VOST,
+	STRING_VOST
+} VarOrStringType;
+
+typedef enum  {
+	TRANSITION_TOVT,
+	VAR_TOVT
+} TransitionOrVarType;
+
+typedef enum  {
+	SYM_SOST,
+	STATE_SOST
+} SymOrStateType;
+
+typedef enum  {
+	SYM_STATE_ARR_SSAOVT,
+	VAR_SSAOVT
+} SymStateArrOrVarType;
+
+typedef enum  {
+	TRANSITION_TVOST,
+	VAR_OR_STRING_TVOST
+} TransitionVarOrStringType;
+
+
+
+//=======================================================================
+
+/* Busco el tipo de dato en la tabla de simbolos con este nombre*/
+typedef struct {
+	char * value;
+} Variable;
+
+/* La diferencia con 'Variable' es que 'String' tiene comillas*/
+typedef struct {
+	char * value;
+} String;
+
+typedef struct {
+	enum VarOrStringType type;
+	union vos_value {
+		Variable * variable;
+		String * string;
+	};
+
+} VarOrString;
+
+typedef struct {
+	VarOrString * stateFrom;
+	VarOrString * stateTo;
+	VarOrString * symbol;
+} Transition;
+
+struct TransitionArr {
+	enum TransitionOrVarType type;
+	union ta_value {
+		Transition * transition;
+		Variable * variable;
+	};
+	TransitionArr * next;
+};
+
+typedef struct {
+	TransitionArr * transitionArr;
+} TrnArrValue;
+
+struct Array {
+	VarOrString * VarOrString;
+	Array * next;
+};
+
+typedef struct {
+	Array * array;
+} SymOrStaArrValue;
+
+typedef struct {
+	enum SymOrStateType type;
+} SymOrStaArr;
+
+
+
+typedef struct {
+	Variable * states;
+	Variable * symbols;
+	Variable * initial;
+	Variable * finalStates;
+	Variable * transitions;
+} DfaValue;
+
+typedef struct {
+	enum DecValueType type;
+	Variable * variable;
+	SymOrStaArr * symOrStaArr;
+	union d_value {
+		DfaValue * dfa;
+		Transition * transition;
+		SymOrStaArrValue * symOrStaArrValue;
+		TrnArrValue * trnArray;
+		String * symOrStateName;
+	};
+} Declaration;
+
+typedef struct {
+	enum TransitionVarOrStringType type;
+	union ao_value {
+		Transition * transition;
+		VarOrString * varOrString;
+	};
+} AddOperand;
+
+typedef struct {
+	enum SymStateArrOrVarType type;
+	Variable * variable;
+	union c_value {
+		SymOrStaArrValue * symOrStaArrValue;
+		Variable * rVariable;
+	};
+} Check;
+
+typedef struct {
+	String * string;
+} Print;
+
+typedef struct {
+	Variable * variable;
+	AddOperand * leftOperand;
+	Variable * rightOperand;
+} Add;
+
+typedef struct {
+	Variable * variable;
+	VarOrString * varOrString;
+	Variable * from;
+} Rem;
+
+typedef struct {
+	Variable * variable;
+	Variable * notVariable;
+} Complement;
+
+typedef struct {
+	TransitionOrVarType type;
+	union tov_value {
+		Transition * transition;
+		Variable * variable;
+	};
+} TransitionOrVar;
+
+typedef struct {
+	Variable * dfaVariable;
+	Variable * leftOperand;
+	Variable * rightOperand;
+	TransitionOrVar * transitionOrVar;
+} Join;
+
+typedef struct {
+	enum ExecValueType type;
+	union e_value {
+		Add * add;
+		Rem * rem;
+		Check * check;
+		Complement * complement;
+		Join * join;
+		Print * print;
+	};
+} Exec;
+
+struct DecOrExec{
+	enum DecOrExecType type;
+	union doe_value {
+		Declaration * declaration;
+		Exec * exec;
+	};
+	DecOrExec * next;
+}; 
+
+typedef struct {
+	DecOrExec * decOrExec;
+} Program; 
 
 #endif
