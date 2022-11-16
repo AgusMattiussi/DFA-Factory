@@ -60,6 +60,8 @@ typedef struct DecOrExec DecOrExec;
 typedef struct TransitionArr TransitionArr;
 typedef struct Array Array;
 
+/* ===================== Enums ============================ */
+
 typedef enum  {
 	DFA_DVT,
 	TRANS_DVT,
@@ -107,9 +109,7 @@ typedef enum  {
 	VAR_OR_STRING_TVOST
 } TransitionVarOrStringType;
 
-
-
-//=======================================================================
+/* ===================== Structs ============================ */
 
 /* Busco el tipo de dato en la tabla de simbolos con este nombre*/
 typedef struct Variable {
