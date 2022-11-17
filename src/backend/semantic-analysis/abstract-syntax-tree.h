@@ -135,6 +135,14 @@ typedef struct Transition {
 	VarOrString * symbol;
 } Transition;
 
+typedef struct {
+	TransitionOrVarType type;
+	union tov_value {
+		Transition * transition;
+		Variable * variable;
+	};
+} TransitionOrVar;
+
 struct TransitionArr{
 	TransitionOrVar * transitionOrVar;
 	TransitionArr * next;
@@ -191,19 +199,6 @@ typedef struct AddOperand {
 	};
 } AddOperand;
 
-typedef struct Check {
-	enum SymStateArrOrVarType type;
-	Variable * variable;
-	union c_value {
-		SymOrStaArrValue * symOrStaArrValue;
-		Variable * rVariable;
-	};
-} Check;
-
-typedef struct Print {
-	String * string;
-} Print;
-
 typedef struct Add {
 	Variable * variable;
 	AddOperand * leftOperand;
@@ -216,18 +211,19 @@ typedef struct {
 	Variable * from;
 } Rem;
 
+typedef struct Check {
+	enum SymStateArrOrVarType type;
+	Variable * variable;
+	union c_value {
+		SymOrStaArrValue * symOrStaArrValue;
+		Variable * rVariable;
+	};
+} Check;
+
 typedef struct Complement {
 	Variable * variable;
 	Variable * notVariable;
 } Complement;
-
-typedef struct {
-	TransitionOrVarType type;
-	union tov_value {
-		Transition * transition;
-		Variable * variable;
-	};
-} TransitionOrVar;
 
 typedef struct Join {
 	Variable * dfaVariable;
@@ -235,6 +231,10 @@ typedef struct Join {
 	Variable * rightOperand;
 	TransitionOrVar * transitionOrVar;
 } Join;
+
+typedef struct Print {
+	String * string;
+} Print;
 
 typedef struct Exec {
 	enum ExecValueType type;

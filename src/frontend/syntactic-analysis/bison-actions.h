@@ -33,33 +33,43 @@ void DummyGrammarAction();
 
 /* ============================== DFA-Factory ================================= */
 
-SymOrState * SymbolGrammarAction();
-
-SymOrState * StateGrammarAction();
-
-TransitionOrVar * TOVVariableGrammarAction(Variable * variable);
-
-TransitionOrVar * TOVTransitionGrammarAction(Transition * transition);
+Program * DfaProgramGrammarAction(DecOrExec * decOrExec);
 
 VarOrString * VariableGrammarAction(Variable * variable);
 
 VarOrString * StringGrammarAction(String * string);
 
+Transition * TransitionGrammarAction(VarOrString * stateFrom, VarOrString* stateTo, VarOrString * symbol);
+
+TransitionArr * TrnArrWithNext(TransitionOrVar * trnOrVar, TransitionArr * next);
+
+TransitionArr * TrnArrNoNext(TransitionOrVar * trnOrVar);
+
+TrnArrValue * TrnArrValueGrammarAction(TransitionArr * trnArr);
+
+Array * ArrayNoNextGrammarAction(VarOrString * varOrStr);
+
+Array * ArrayWithNextGrammarAction(VarOrString * varOrStr, Array * next);
+
+SymOrStaArrValue * SymstaArrValuegGrammarAction(Array * array);
+
+SymOrState * SymbolGrammarAction();
+
+SymOrState * StateGrammarAction();
+
+SymOrStaArr * SymOrStaArrGrammarAction(SymOrState * symOrState);
+
+DfaValue * DfaValueGrammarAction(Variable * states, Variable * symbols, Variable * startState, Variable * endStates, Variable * transitions);
+
+// TODO: agregar prototipos de las DeclarationGrammarActions
+
 AddOperand * AddOperandTransitionGrammarAction(Transition * transition);
 
 AddOperand * AddOperandVarOrStringGrammarAction(VarOrString * varOrString);
 
-Exec * ExecAddGrammarAction(Add * add);
+TransitionOrVar * TOVVariableGrammarAction(Variable * variable);
 
-Exec * ExecRemGrammarAction(Rem * rem);
-
-Exec * ExecCheckGrammarAction(Check * check); 
-
-Exec * ExecComplementGrammarAction(Complement * complement);
-
-Exec * ExecJoinGrammarAction(Join * join);
-
-Exec * ExecPrintGrammarAction(Print * print); 
+TransitionOrVar * TOVTransitionGrammarAction(Transition * transition);
 
 Add * ExistingDFAAddGrammarAction(Variable * resultDFA, AddOperand * leftOperand, Variable * rightOperand);
 
@@ -67,7 +77,7 @@ Add * NotExistingDFAAddGrammarAction(Variable * resultDFA, AddOperand * leftOper
 
 Rem * ExistingDFARemGrammarAction(Variable * resultDFA, VarOrString * varOrStr, Variable * from);
 
-Rem * ExistingDFARemGrammarAction(Variable * resultDFA, VarOrString * varOrStr, Variable * from);
+Rem * NotExistingDFARemGrammarAction(Variable * resultDFA, VarOrString * varOrStr, Variable * from);
 
 Check * CheckSymStaArrValueGrammarAction(Variable * variable, SymOrStaArrValue * symOrStaArrValue);
 
@@ -83,16 +93,22 @@ Join * NotExistingDFAJoinGrammarAction(Variable * resultDFA, Variable * leftDFA,
 
 Print * PrintGrammarAction(String * string);
 
-DfaValue * DfaValueGrammarAction(Variable * states, Variable * symbols, Variable * startState, Variable * endStates, Variable * transitions);
+Exec * ExecAddGrammarAction(Add * add);
 
-SymOrStaArrValue * SymstaArrValuegGrammarAction(Array * array);
+Exec * ExecRemGrammarAction(Rem * rem);
 
-TransitionArr * TrnArrWithNext(TransitionOrVar * trnOrVar, TransitionArr * next);
+Exec * ExecCheckGrammarAction(Check * check); 
 
-TransitionArr * TrnArrNoNext(TransitionOrVar * trnOrVar);
+Exec * ExecComplementGrammarAction(Complement * complement);
 
-Array * ArrayNoNextGrammarAction(VarOrString * varOrStr);
+Exec * ExecJoinGrammarAction(Join * join);
 
-Array * ArrayWithNextGrammarAction(VarOrString * varOrStr, Array * next);
+Exec * ExecPrintGrammarAction(Print * print); 
+
+DecOrExec * FirstDecGrammarAction(Declaration * dec, DecOrExec * next);
+
+DecOrExec * FirstExecGrammarAction(Exec * exec, DecOrExec * next);
+
+DecOrExec * DecOrExecLamdaGrammarAction();
 
 #endif

@@ -5,13 +5,13 @@
 #include <string.h>
 
 typedef enum DataType {
-    DFA,
-    TRANSITION,
-    STATE,
-    SYMBOL,
-    SYM_ARRAY,
-    STATE_ARRAY,
-    TRN_ARRAY
+    DFA_DT,
+    TRANSITION_DT,
+    STATE_DT,
+    SYMBOL_DT,
+    SYM_ARRAY_DT,
+    STATE_ARRAY_DT,
+    TRN_ARRAY_DT
 } DataType;
 
 

@@ -33,8 +33,8 @@
 
 	// Terminales.
 	token token;
-	char * string;
-	Variable variable;
+	String * string;
+	Variable * variable;
 }
 
 // IDs y tipos de los tokens terminales generados desde Flex.
@@ -93,12 +93,12 @@ program: decOrExec				 													{ $$ = DfaProgramGrammarAction($1);  }
 
 /* ==== Declaraciones ==== */
 
-decOrExec: dec[dec] SEMICOLON decOrExec[next]										{ $$ = FirstDecGrammarAction($dec, $next);  }	
-	| 	exec[exec] SEMICOLON decOrExec[next] 										{ $$ = FirstExecGrammarAction($exec, $next);  }																
+decOrExec: dec[declaration] SEMICOLON decOrExec[next]								{ $$ = FirstDecGrammarAction($declaration, $next);  }	
+	| 	exec[execution] SEMICOLON decOrExec[next] 									{ $$ = FirstExecGrammarAction($execution, $next);  }																
 	| /* lambda */ 																	{ $$ = DecOrExecLamdaGrammarAction();  }
 	;
 
-dec: symOrState[type] VARIABLE[name] EQUALS STRING[value] 							{ DummyGrammarAction();  } 
+dec: symOrState VARIABLE EQUALS STRING												{ DummyGrammarAction();  } 
 	| TRANSITION VARIABLE EQUALS transition 										{ DummyGrammarAction();  }
 	| symOrStaArr VARIABLE EQUALS symstaArrValue 									{ DummyGrammarAction();  }
 	| TRANSITION OPEN_BRACKETS CLOSE_BRACKETS VARIABLE EQUALS trnArrValue 			{ DummyGrammarAction();  }
@@ -124,11 +124,11 @@ symstaArrValue: OPEN_CURLY arr[array] CLOSE_CURLY 									{ $$ = SymstaArrValue
 	;
 
 
-arr: varOrString[varOrString] COMMA arr[next]										{ $$ = ArrayWithNextGrammarAction($varOrString, $next);  }
+arr: varOrString[vos] COMMA arr[next]												{ $$ = ArrayWithNextGrammarAction($vos, $next);  }
 	| varOrString																	{ $$ = ArrayNoNextGrammarAction($1);  }
 	;  
 	
-trnArrValue: OPEN_CURLY trnArr[trnArr] CLOSE_CURLY 									{ $$ = TrnArrValueGrammarAction($trnArr);  }
+trnArrValue: OPEN_CURLY trnArr[transitionArray] CLOSE_CURLY 						{ $$ = TrnArrValueGrammarAction($transitionArray);  }
 	;
 
 trnArr: transitionOrVar[trnOrVar] COMMA trnArr[next] 								{ $$ = TrnArrWithNext($trnOrVar, $next);  }
@@ -158,11 +158,9 @@ check: VARIABLE[variable] CHECK symstaArrValue[ssav] 								{ $$ = CheckSymStaA
 	;
 
 
-add: DFA VARIABLE[resultDFA] EQUALS ADD addOperand[leftOperand]
-	 TO VARIABLE[rightOperand]														{ $$ = NotExistingDFAAddGrammarAction($resultDFA, $leftOperand, $rightOperand);  }
- 	|  VARIABLE[resultDFA] EQUALS ADD addOperand[leftOperand]
-	 TO VARIABLE[rightOperand]	 													{ $$ = ExistingDFAAddGrammarAction($resultDFA, $leftOperand, $rightOperand);  }
- ;
+add: DFA VARIABLE[resultDFA] EQUALS ADD addOperand[leftOperand] TO VARIABLE[rightOperand]			{ $$ = NotExistingDFAAddGrammarAction($resultDFA, $leftOperand, $rightOperand);  }
+ 	|  VARIABLE[resultDFA] EQUALS ADD addOperand[leftOperand] TO VARIABLE[rightOperand]	 			{ $$ = ExistingDFAAddGrammarAction($resultDFA, $leftOperand, $rightOperand);  }
+ 	;
 
 addOperand: transition																{ $$ = AddOperandTransitionGrammarAction($1);  }
 	| varOrString																	{ $$ = AddOperandVarOrStringGrammarAction($1);  }
@@ -181,10 +179,8 @@ complement: DFA VARIABLE[variable] EQUALS NOT VARIABLE[notVariable]  				{ $$ = 
 	;
 
 
-join: DFA VARIABLE[resultDFA] EQUALS VARIABLE[leftDFA] JOIN
-		 VARIABLE[resultDFA] transitionOrVar[tov]									{ $$ = NotExistingDFAJoinGrammarAction($resultDFA, $leftDfa, $rightDFA, $tov);  }
-	| VARIABLE[resultDFA] EQUALS VARIABLE[leftDFA] JOIN
-	 	VARIABLE[rightDFA] transitionOrVar[tov]										{ $$ = ExistingDFAJoinGrammarAction($resultDFA, $leftDfa, $rightDFA, $tov);  }
+join: DFA VARIABLE[resultDFA] EQUALS VARIABLE[leftDFA] JOIN VARIABLE[rightDFA] transitionOrVar[tov]				{ $$ = NotExistingDFAJoinGrammarAction($resultDFA, $leftDFA, $rightDFA, $tov);  }
+	| VARIABLE[resultDFA] EQUALS VARIABLE[leftDFA] JOIN VARIABLE[rightDFA] transitionOrVar[tov]					{ $$ = ExistingDFAJoinGrammarAction($resultDFA, $leftDFA, $rightDFA, $tov);  }
 	;
 
 transitionOrVar: VARIABLE															{ $$ = TOVVariableGrammarAction($1);  }

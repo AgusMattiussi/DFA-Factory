@@ -58,8 +58,6 @@ Program * DfaProgramGrammarAction(DecOrExec * decOrExec) {
 	return ret;
 }
 
-
-
 void DummyProgramGrammarAction(){
 	state.succeed = true;
 	return;
@@ -71,42 +69,81 @@ void DummyGrammarAction(){
 
 /* TODO: Aniade la variable a la tabla de simbolos */
 // TODO: Deberia copiar el nombre a un nuevo char * ?
+// TODO: revisar casteos
 static void addVariable(Variable * name, DataType type){
-	addEntry(state.symbolTable, name, type);
-} 
+	addEntry(state.symbolTable, (char *) name, type);
+}
 
-DecOrExec * FirstDecGrammarAction(Declaration * dec, DecOrExec * next) {
-	LogDebug("\tFirstDecGrammarAction");
-	DecOrExec * ret = malloc(sizeof(DecOrExec));
-	ret->declaration = dec;
-	ret->next = next;
+VarOrString * VariableGrammarAction(Variable * variable) {
+	LogDebug("\tVariableGrammarAction: %s", variable->value);
+	VarOrString * ret = malloc(sizeof(VarOrString));
+	ret->type = VAR_VOST;
+	ret->variable = variable;
 	return ret;
 }
 
-DecOrExec * FirstExecGrammarAction(Declaration * exec, DecOrExec * next) {
-	LogDebug("\tFirstExecGrammarAction");
-	DecOrExec * ret = malloc(sizeof(DecOrExec));
-	ret->exec = exec;
-	ret->next = next;
+VarOrString * StringGrammarAction(String * string) {
+	LogDebug("\tStringGrammarAction: %s", string->value);
+	VarOrString * ret = malloc(sizeof(VarOrString));
+	ret->type = STRING_VOST;
+	ret->string = string;
 	return ret;
 }
 
-DecOrExec * DecOrExecLamdaGrammarAction() {
-	LogDebug("\tDecOrExecLamdaGrammarAction");
-	DecOrExec * ret = malloc(sizeof(DecOrExec));
+Transition * TransitionGrammarAction(VarOrString * stateFrom, VarOrString* stateTo, VarOrString * symbol) {
+	LogDebug("\tTransitionGrammarAction");
+	Transition * ret = malloc(sizeof(Transition));
+	ret->stateFrom = stateFrom;
+	ret->stateTo = stateTo;
+	ret->symbol = symbol; 
+	return ret;
+}
+
+TransitionArr * TrnArrNoNext(TransitionOrVar * trnOrVar) {
+	LogDebug("\tTrnArrNoNext");
+	TransitionArr * ret = malloc(sizeof(TransitionArr));
+	ret->transitionOrVar = trnOrVar; 
 	ret->next = NULL;
 	return ret;
 }
 
-// TODO: El Declaration pide cosas de mas creo
-// TODO: Hacer el resto de las de dec
-// Declaration * DecSymStaVarGrammarAction(SymOrState * type, Variable * variable, String * value) {
-// 	LogDebug("\tDecSymStaVarGrammarAction");
-// 	Declaration *ret = malloc(sizeof(Declaration));
-// 	ret->type = SYM_SOST;
-// 	return ret;
-// }
+TransitionArr * TrnArrWithNext(TransitionOrVar * trnOrVar, TransitionArr * next) {
+	LogDebug("\tTrnArrWithNext");
+	TransitionArr * ret = malloc(sizeof(TransitionArr));
+	ret->transitionOrVar = trnOrVar; 
+	ret->next = next;
+	return ret;
+}
 
+TrnArrValue * TrnArrValueGrammarAction(TransitionArr * trnArr) {
+	LogDebug("\tTrnArrValueGrammarAction");
+	TrnArrValue * ret = malloc(sizeof(TrnArrValue));
+	ret->transitionArr = trnArr; 
+	return ret;
+}
+
+Array * ArrayNoNextGrammarAction(VarOrString * varOrStr) {
+	LogDebug("\tArrayNoNextGrammarAction");
+	Array * ret = malloc(sizeof(Array));
+	ret->VarOrString = varOrStr;
+	ret->next = NULL; 
+	return ret;
+}
+
+Array * ArrayWithNextGrammarAction(VarOrString * varOrStr, Array * next) {
+	LogDebug("\tArrayWithNextGrammarAction");
+	Array * ret = malloc(sizeof(Array));
+	ret->VarOrString = varOrStr;
+	ret->next = next; 
+	return ret;
+}
+
+SymOrStaArrValue * SymstaArrValuegGrammarAction(Array * array) {
+	LogDebug("\tSymstaArrValuegGrammarAction");
+	SymOrStaArrValue * ret = malloc(sizeof(SymOrStaArrValue));
+	ret->array = array;
+	return ret;
+}
 
 SymOrState * SymbolGrammarAction(){
 	LogDebug("\tSymbolGrammarAction");
@@ -119,6 +156,50 @@ SymOrState * StateGrammarAction() {
 	LogDebug("\tStateGrammarAction");
 	SymOrState * ret = malloc(sizeof(SymOrState));
 	ret->type = STATE_SOST;
+	return ret;
+}
+
+SymOrStaArr * SymOrStaArrGrammarAction(SymOrState * symOrState) {
+	LogDebug("\tSymOrStaArrGrammarAction");
+	SymOrStaArr * ret = malloc(sizeof(SymOrStaArr));
+	ret->symOrState = symOrState;
+	return ret;	
+}
+
+DfaValue * DfaValueGrammarAction(Variable * states, Variable * symbols, Variable * startState, Variable * endStates, Variable * transitions) {
+	LogDebug("\tDfaValueGrammarAction");
+	DfaValue * ret = malloc(sizeof(DfaValue));
+	ret->states = states;
+	ret->symbols = symbols;
+	ret->initial = startState;
+	ret->finalStates = endStates;
+	ret->transitions = transitions;
+	return ret;
+}
+
+// TODO: El Declaration pide cosas de mas creo
+// TODO: Hacer el resto de las de dec
+// Declaration * DecSymStaVarGrammarAction(SymOrState * type, Variable * variable, String * value) {
+// 	LogDebug("\tDecSymStaVarGrammarAction");
+// 	Declaration *ret = malloc(sizeof(Declaration));
+// 	ret->type = SYM_SOST;
+// 	return ret;
+// }
+
+AddOperand * AddOperandTransitionGrammarAction(Transition * transition) {
+	LogDebug("\tAddOperandTransitionGrammarAction");
+	AddOperand * ret = malloc(sizeof(AddOperand));
+	ret->type = TRANSITION_TVOST;
+	ret->transition = transition;
+	return ret;
+}
+
+//TODO: Agregar DFA a symtable
+AddOperand * AddOperandVarOrStringGrammarAction(VarOrString * varOrString) {
+	LogDebug("\tAddOperandVarOrStringGrammarAction");
+	AddOperand * ret = malloc(sizeof(AddOperand));
+	ret->type = VAR_OR_STRING_TVOST;
+	ret->varOrString = varOrString;
 	return ret;
 }
 
@@ -140,36 +221,88 @@ TransitionOrVar * TOVTransitionGrammarAction(Transition * transition){
 	return ret;
 }
 
-VarOrString * VariableGrammarAction(Variable * variable) {
-	LogDebug("\tVariableGrammarAction: %s", variable->value);
-	VarOrString * ret = malloc(sizeof(VarOrString));
-	ret->type = VAR_VOST;
+Add * ExistingDFAAddGrammarAction(Variable * resultDFA, AddOperand * leftOperand, Variable * rightOperand) {
+	LogDebug("\tExistingDFAAddGrammarAction");
+	Add * ret = malloc(sizeof(Add));
+	ret->variable = resultDFA;
+	ret->leftOperand = leftOperand;
+	ret->rightOperand = rightOperand;
+	return ret;
+}
+
+Add * NotExistingDFAAddGrammarAction(Variable * resultDFA, AddOperand * leftOperand, Variable * rightOperand) {
+	LogDebug("\tNotExistingDFAAddGrammarAction");
+	addVariable((Variable *) resultDFA->value, DFA_DT);
+	return ExistingDFAAddGrammarAction(resultDFA, leftOperand, rightOperand);
+}
+
+Rem * ExistingDFARemGrammarAction(Variable * resultDFA, VarOrString * varOrStr, Variable * from) {
+	LogDebug("\tExistingDFARemGrammarAction");
+	Rem * ret = malloc(sizeof(Rem));
+	ret->variable = resultDFA;
+	ret->varOrString = varOrStr;
+	ret->from = from;
+	return ret;
+}
+
+Rem * NotExistingDFARemGrammarAction(Variable * resultDFA, VarOrString * varOrStr, Variable * from) {
+	LogDebug("\tNotExistingDFARemGrammarAction");
+	addVariable((Variable *) resultDFA->value, DFA_DT);
+	return ExistingDFARemGrammarAction(resultDFA, varOrStr, from);
+}
+
+Check * CheckSymStaArrValueGrammarAction(Variable * variable, SymOrStaArrValue * symOrStaArrValue){
+	LogDebug("\tCheckSymStaArrValueGrammarAction");
+	Check * ret = malloc(sizeof(Check));
+	ret->type = SYM_STATE_ARR_SSAOVT;
 	ret->variable = variable;
+	ret->symOrStaArrValue = symOrStaArrValue;
 	return ret;
 }
 
-VarOrString * StringGrammarAction(String * string) {
-	LogDebug("\tStringGrammarAction: %s", string->value);
-	VarOrString * ret = malloc(sizeof(VarOrString));
-	ret->type = STRING_VOST;
+Check * CheckVariableGrammarAction(Variable * variable, Variable * rightVariable){
+	LogDebug("\tCheckVariableGrammarAction");
+	Check * ret = malloc(sizeof(Check));
+	ret->type = VAR_SSAOVT;
+	ret->variable = variable;
+	ret->rVariable = rightVariable;
+	return ret;
+}
+
+Complement * ExistingDFAComplementGrammarAction(Variable * variable, Variable * notVariable) {
+	LogDebug("\tExistingDFAComplementGrammarAction");
+	Complement * ret = malloc(sizeof(Complement));
+	ret->variable = variable;
+	ret->notVariable = notVariable;
+	return ret;
+}
+
+Complement * NotExistingDFAComplementGrammarAction(Variable * variable, Variable * notVariable) {
+	LogDebug("\tNotExistingDFAComplementGrammarAction");
+	addVariable((Variable *) variable->value, DFA_DT);
+	return ExistingDFAComplementGrammarAction(variable, notVariable);
+}
+
+Join * ExistingDFAJoinGrammarAction(Variable * resultDFA, Variable * leftDFA, Variable * rightDFA, TransitionOrVar * tov) {
+	LogDebug("\tExistingDFAJoinGrammarAction");
+	Join * ret = malloc(sizeof(Join));
+	ret->dfaVariable = resultDFA;
+	ret->leftOperand = leftDFA;
+	ret->rightOperand = rightDFA;
+	ret->transitionOrVar = tov;
+	return ret;
+}
+
+Join * NotExistingDFAJoinGrammarAction(Variable * resultDFA, Variable * leftDFA, Variable * rightDFA, TransitionOrVar * tov) {
+	LogDebug("\tNotExistingDFAJoinGrammarAction");
+	addVariable((Variable *) resultDFA->value, DFA_DT);
+	return ExistingDFAJoinGrammarAction(resultDFA, leftDFA, rightDFA, tov);
+}
+
+Print * PrintGrammarAction(String * string){
+	LogDebug("\tPrintGrammarAction");
+	Print * ret = malloc(sizeof(Print));
 	ret->string = string;
-	return ret;
-}
-
-AddOperand * AddOperandTransitionGrammarAction(Transition * transition) {
-	LogDebug("\tAddOperandTransitionGrammarAction");
-	AddOperand * ret = malloc(sizeof(AddOperand));
-	ret->type = TRANSITION_TVOST;
-	ret->transition = transition;
-	return ret;
-}
-
-//TODO: Agregar DFA a symtable
-AddOperand * AddOperandVarOrStringGrammarAction(VarOrString * varOrString) {
-	LogDebug("\tAddOperandVarOrStringGrammarAction");
-	AddOperand * ret = malloc(sizeof(AddOperand));
-	ret->type = VAR_OR_STRING_TVOST;
-	ret->varOrString = varOrString;
 	return ret;
 }
 
@@ -221,160 +354,25 @@ Exec * ExecPrintGrammarAction(Print * print) {
 	return ret;
 }
 
-Add * ExistingDFAAddGrammarAction(Variable * resultDFA, AddOperand * leftOperand, Variable * rightOperand) {
-	LogDebug("\tExistingDFAAddGrammarAction");
-	Add * ret = malloc(sizeof(Add));
-	ret->variable = resultDFA;
-	ret->leftOperand = leftOperand;
-	ret->rightOperand = rightOperand;
-	return ret;
-}
-
-Add * NotExistingDFAAddGrammarAction(Variable * resultDFA, AddOperand * leftOperand, Variable * rightOperand) {
-	LogDebug("\tNotExistingDFAAddGrammarAction");
-	addVariable(resultDFA->value, DFA);
-	return ExistingDFAAddGrammarAction(resultDFA, leftOperand, rightOperand);
-}
-
-Rem * ExistingDFARemGrammarAction(Variable * resultDFA, VarOrString * varOrStr, Variable * from) {
-	LogDebug("\tExistingDFARemGrammarAction");
-	Rem * ret = malloc(sizeof(Rem));
-	ret->variable = resultDFA;
-	ret->varOrString = varOrStr;
-	ret->from = from;
-	return ret;
-}
-
-Rem * ExistingDFARemGrammarAction(Variable * resultDFA, VarOrString * varOrStr, Variable * from) {
-	LogDebug("\tNotExistingDFARemGrammarAction");
-	addVariable(resultDFA->value, DFA);
-	return ExistingDFARemGrammarAction(resultDFA, varOrStr, from);
-}
-
-Check * CheckSymStaArrValueGrammarAction(Variable * variable, SymOrStaArrValue * symOrStaArrValue){
-	LogDebug("\tCheckSymStaArrValueGrammarAction");
-	Check * ret = malloc(sizeof(Check));
-	ret->type = SYM_STATE_ARR_SSAOVT;
-	ret->variable = variable;
-	ret->symOrStaArrValue = symOrStaArrValue;
-	return ret;
-}
-
-Check * CheckVariableGrammarAction(Variable * variable, Variable * rightVariable){
-	LogDebug("\tCheckVariableGrammarAction");
-	Check * ret = malloc(sizeof(Check));
-	ret->type = VAR_SSAOVT;
-	ret->variable = variable;
-	ret->rVariable = rightVariable;
-	return ret;
-}
-
-Complement * ExistingDFAComplementGrammarAction(Variable * variable, Variable * notVariable) {
-	LogDebug("\tExistingDFAComplementGrammarAction");
-	Complement * ret = malloc(sizeof(Complement));
-	ret->variable = variable;
-	ret->notVariable = notVariable;
-	return ret;
-}
-
-Complement * NotExistingDFAComplementGrammarAction(Variable * variable, Variable * notVariable) {
-	LogDebug("\tNotExistingDFAComplementGrammarAction");
-	addVariable(variable->value, DFA);
-	return ExistingDFAComplementGrammarAction(variable, notVariable);
-}
-
-Join * ExistingDFAJoinGrammarAction(Variable * resultDFA, Variable * leftDFA, Variable * rightDFA, TransitionOrVar * tov) {
-	LogDebug("\tExistingDFAJoinGrammarAction");
-	Join * ret = malloc(sizeof(Join));
-	ret->dfaVariable = resultDFA;
-	ret->leftOperand = leftDFA;
-	ret->rightOperand = rightDFA;
-	ret->transitionOrVar = tov;
-	return ret;
-}
-
-Join * NotExistingDFAJoinGrammarAction(Variable * resultDFA, Variable * leftDFA, Variable * rightDFA, TransitionOrVar * tov) {
-	LogDebug("\tNotExistingDFAJoinGrammarAction");
-	addVariable(resultDFA->value, DFA);
-	return ExistingDFAJoinGrammarAction(resultDFA, leftDFA, rightDFA, tov);
-}
-
-Print * PrintGrammarAction(String * string){
-	LogDebug("\tPrintGrammarAction");
-	Print * ret = malloc(sizeof(Print));
-	ret->string = string;
-	return ret;
-}
-
-DfaValue * DfaValueGrammarAction(Variable * states, Variable * symbols, Variable * startState, Variable * endStates, Variable * transitions) {
-	LogDebug("\tDfaValueGrammarAction");
-	DfaValue * ret = malloc(sizeof(DfaValue));
-	ret->states = states;
-	ret->symbols = symbols;
-	ret->initial = startState;
-	ret->finalStates = endStates;
-	ret->transitions = transitions;
-	return ret;
-}
-
-SymOrStaArrValue * SymstaArrValuegGrammarAction(Array * array) {
-	LogDebug("\tSymstaArrValuegGrammarAction");
-	SymOrStaArrValue * ret = malloc(sizeof(SymOrStaArrValue));
-	ret->array = array;
-	return ret;
-}
-
-TransitionArr * TrnArrNoNext(TransitionOrVar * trnOrVar) {
-	LogDebug("\tTrnArrNoNext");
-	TransitionArr * ret = malloc(sizeof(TransitionArr));
-	ret->transitionOrVar = trnOrVar; 
-	ret->next = NULL;
-	return ret;
-}
-
-TransitionArr * TrnArrWithNext(TransitionOrVar * trnOrVar, TransitionArr * next) {
-	LogDebug("\tTrnArrWithNext");
-	TransitionArr * ret = malloc(sizeof(TransitionArr));
-	ret->transitionOrVar = trnOrVar; 
+DecOrExec * FirstDecGrammarAction(Declaration * dec, DecOrExec * next) {
+	LogDebug("\tFirstDecGrammarAction");
+	DecOrExec * ret = malloc(sizeof(DecOrExec));
+	ret->declaration = dec;
 	ret->next = next;
 	return ret;
 }
 
-TrnArrValue * TrnArrValueGrammarAction(TransitionArr * trnArr) {
-	LogDebug("\tTrnArrValueGrammarAction");
-	TrnArrValue * ret = malloc(sizeof(TrnArrValue));
-	ret->transitionArr = trnArr; 
+DecOrExec * FirstExecGrammarAction(Exec * exec, DecOrExec * next) {
+	LogDebug("\tFirstExecGrammarAction");
+	DecOrExec * ret = malloc(sizeof(DecOrExec));
+	ret->exec = exec;
+	ret->next = next;
 	return ret;
 }
 
-Array * ArrayNoNextGrammarAction(VarOrString * varOrStr) {
-	LogDebug("\tArrayNoNextGrammarAction");
-	Array * ret = malloc(sizeof(Array));
-	ret->VarOrString = varOrStr;
-	ret->next = NULL; 
+DecOrExec * DecOrExecLamdaGrammarAction() {
+	LogDebug("\tDecOrExecLamdaGrammarAction");
+	DecOrExec * ret = malloc(sizeof(DecOrExec));
+	ret->next = NULL;
 	return ret;
-}
-
-Array * ArrayWithNextGrammarAction(VarOrString * varOrStr, Array * next) {
-	LogDebug("\tArrayWithNextGrammarAction");
-	Array * ret = malloc(sizeof(Array));
-	ret->VarOrString = varOrStr;
-	ret->next = next; 
-	return ret;
-}
-
-Transition * TransitionGrammarAction(VarOrString * stateFrom, VarOrString* stateTo, VarOrString * symbol) {
-	LogDebug("\tTransitionGrammarAction");
-	Transition * ret = malloc(sizeof(Transition));
-	ret->stateFrom = stateFrom;
-	ret->stateTo = stateTo;
-	ret->symbol = symbol; 
-	return ret;
-}
-
-SymOrStaArr * SymOrStaArrGrammarAction(SymOrState * symOrState) {
-	LogDebug("\tSymOrStaArrGrammarAction");
-	SymOrStaArr * ret = malloc(sizeof(SymOrStaArr));
-	ret->symOrState = symOrState;
-	return ret;	
 }
