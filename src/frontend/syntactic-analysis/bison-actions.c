@@ -47,6 +47,17 @@ int ProgramGrammarAction(const int value) {
 	return value;
 }
 
+Program * DfaProgramGrammarAction(DecOrExec * decOrExec) {
+	LogDebug("\tDfaProgramGrammarAction");
+	Program * ret = malloc(sizeof(Program));
+	ret->decOrExec = decOrExec;
+
+	state.succeed = true;
+
+	// state.result = value;
+	return ret;
+}
+
 
 
 void DummyProgramGrammarAction(){
@@ -64,6 +75,37 @@ static void addVariable(Variable * name, DataType type){
 	addEntry(state.symbolTable, name, type);
 } 
 
+DecOrExec * FirstDecGrammarAction(Declaration * dec, DecOrExec * next) {
+	LogDebug("\tFirstDecGrammarAction");
+	DecOrExec * ret = malloc(sizeof(DecOrExec));
+	ret->declaration = dec;
+	ret->next = next;
+	return ret;
+}
+
+DecOrExec * FirstExecGrammarAction(Declaration * exec, DecOrExec * next) {
+	LogDebug("\tFirstExecGrammarAction");
+	DecOrExec * ret = malloc(sizeof(DecOrExec));
+	ret->exec = exec;
+	ret->next = next;
+	return ret;
+}
+
+DecOrExec * DecOrExecLamdaGrammarAction() {
+	LogDebug("\tDecOrExecLamdaGrammarAction");
+	DecOrExec * ret = malloc(sizeof(DecOrExec));
+	ret->next = NULL;
+	return ret;
+}
+
+// TODO: El Declaration pide cosas de mas creo
+// TODO: Hacer el resto de las de dec
+// Declaration * DecSymStaVarGrammarAction(SymOrState * type, Variable * variable, String * value) {
+// 	LogDebug("\tDecSymStaVarGrammarAction");
+// 	Declaration *ret = malloc(sizeof(Declaration));
+// 	ret->type = SYM_SOST;
+// 	return ret;
+// }
 
 
 SymOrState * SymbolGrammarAction(){
@@ -288,4 +330,51 @@ TransitionArr * TrnArrNoNext(TransitionOrVar * trnOrVar) {
 	ret->transitionOrVar = trnOrVar; 
 	ret->next = NULL;
 	return ret;
+}
+
+TransitionArr * TrnArrWithNext(TransitionOrVar * trnOrVar, TransitionArr * next) {
+	LogDebug("\tTrnArrWithNext");
+	TransitionArr * ret = malloc(sizeof(TransitionArr));
+	ret->transitionOrVar = trnOrVar; 
+	ret->next = next;
+	return ret;
+}
+
+TrnArrValue * TrnArrValueGrammarAction(TransitionArr * trnArr) {
+	LogDebug("\tTrnArrValueGrammarAction");
+	TrnArrValue * ret = malloc(sizeof(TrnArrValue));
+	ret->transitionArr = trnArr; 
+	return ret;
+}
+
+Array * ArrayNoNextGrammarAction(VarOrString * varOrStr) {
+	LogDebug("\tArrayNoNextGrammarAction");
+	Array * ret = malloc(sizeof(Array));
+	ret->VarOrString = varOrStr;
+	ret->next = NULL; 
+	return ret;
+}
+
+Array * ArrayWithNextGrammarAction(VarOrString * varOrStr, Array * next) {
+	LogDebug("\tArrayWithNextGrammarAction");
+	Array * ret = malloc(sizeof(Array));
+	ret->VarOrString = varOrStr;
+	ret->next = next; 
+	return ret;
+}
+
+Transition * TransitionGrammarAction(VarOrString * stateFrom, VarOrString* stateTo, VarOrString * symbol) {
+	LogDebug("\tTransitionGrammarAction");
+	Transition * ret = malloc(sizeof(Transition));
+	ret->stateFrom = stateFrom;
+	ret->stateTo = stateTo;
+	ret->symbol = symbol; 
+	return ret;
+}
+
+SymOrStaArr * SymOrStaArrGrammarAction(SymOrState * symOrState) {
+	LogDebug("\tSymOrStaArrGrammarAction");
+	SymOrStaArr * ret = malloc(sizeof(SymOrStaArr));
+	ret->symOrState = symOrState;
+	return ret;	
 }

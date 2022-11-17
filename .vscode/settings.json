@@ -9,5 +9,6 @@
         "stdio.h": "c",
         "calculator.h": "c",
         "abstract-syntax-tree.h": "c"
-    }
+    },
+    "cmake.configureOnOpen": true
 }

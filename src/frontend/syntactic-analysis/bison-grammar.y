@@ -89,16 +89,16 @@
 %start program
 %%
 
-program: decOrExec				 													{ DummyProgramGrammarAction();  }
+program: decOrExec				 													{ $$ = DfaProgramGrammarAction($1);  }
 
 /* ==== Declaraciones ==== */
 
-decOrExec: dec SEMICOLON decOrExec 													{ DummyGrammarAction();  }	
-	| 	exec SEMICOLON decOrExec 													{ DummyGrammarAction();  }																
-	| /* lambda */ 																	{ DummyGrammarAction();  }
+decOrExec: dec[dec] SEMICOLON decOrExec[next]										{ $$ = FirstDecGrammarAction($dec, $next);  }	
+	| 	exec[exec] SEMICOLON decOrExec[next] 										{ $$ = FirstExecGrammarAction($exec, $next);  }																
+	| /* lambda */ 																	{ $$ = DecOrExecLamdaGrammarAction();  }
 	;
 
-dec: symOrState VARIABLE EQUALS STRING 												{ DummyGrammarAction();  } 
+dec: symOrState[type] VARIABLE[name] EQUALS STRING[value] 							{ DummyGrammarAction();  } 
 	| TRANSITION VARIABLE EQUALS transition 										{ DummyGrammarAction();  }
 	| symOrStaArr VARIABLE EQUALS symstaArrValue 									{ DummyGrammarAction();  }
 	| TRANSITION OPEN_BRACKETS CLOSE_BRACKETS VARIABLE EQUALS trnArrValue 			{ DummyGrammarAction();  }
@@ -109,10 +109,11 @@ symOrState: SYMBOL 																	{ $$ = SymbolGrammarAction();  }
 	| STATE 																		{ $$ = StateGrammarAction();  }
 	;
 
-symOrStaArr: symOrState OPEN_BRACKETS CLOSE_BRACKETS  								{ DummyGrammarAction();  }
+symOrStaArr: symOrState OPEN_BRACKETS CLOSE_BRACKETS  								{ $$ = SymOrStaArrGrammarAction($1);  }
 	;
 
-transition: OPEN_CURLY varOrString COMMA varOrString COMMA varOrString CLOSE_CURLY		{ DummyGrammarAction();  }
+transition: OPEN_CURLY varOrString[stateFrom]
+	 COMMA varOrString[stateTo] COMMA varOrString[symbol] CLOSE_CURLY				{ $$ = TransitionGrammarAction($stateFrom, $stateTo, $symbol);  }
 	;
 
 varOrString: VARIABLE 																{ $$ = VariableGrammarAction($1);  }
@@ -123,14 +124,14 @@ symstaArrValue: OPEN_CURLY arr[array] CLOSE_CURLY 									{ $$ = SymstaArrValue
 	;
 
 
-arr: varOrString COMMA arr															{ DummyGrammarAction();  }
-	| varOrString																	{ DummyGrammarAction();  }
+arr: varOrString[varOrString] COMMA arr[next]										{ $$ = ArrayWithNextGrammarAction($varOrString, $next);  }
+	| varOrString																	{ $$ = ArrayNoNextGrammarAction($1);  }
 	;  
 	
-trnArrValue: OPEN_CURLY trnArr CLOSE_CURLY 											{ DummyGrammarAction();  }
+trnArrValue: OPEN_CURLY trnArr[trnArr] CLOSE_CURLY 									{ $$ = TrnArrValueGrammarAction($trnArr);  }
 	;
 
-trnArr: transitionOrVar COMMA trnArr 												{ DummyGrammarAction();  }
+trnArr: transitionOrVar[trnOrVar] COMMA trnArr[next] 								{ $$ = TrnArrWithNext($trnOrVar, $next);  }
 	| transitionOrVar 																{ $$ = TrnArrNoNext($1);  }
 	;
 

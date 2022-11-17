@@ -87,4 +87,12 @@ DfaValue * DfaValueGrammarAction(Variable * states, Variable * symbols, Variable
 
 SymOrStaArrValue * SymstaArrValuegGrammarAction(Array * array);
 
+TransitionArr * TrnArrWithNext(TransitionOrVar * trnOrVar, TransitionArr * next);
+
+TransitionArr * TrnArrNoNext(TransitionOrVar * trnOrVar);
+
+Array * ArrayNoNextGrammarAction(VarOrString * varOrStr);
+
+Array * ArrayWithNextGrammarAction(VarOrString * varOrStr, Array * next);
+
 #endif
