@@ -61,7 +61,15 @@ SymOrStaArr * SymOrStaArrGrammarAction(SymOrState * symOrState);
 
 DfaValue * DfaValueGrammarAction(Variable * states, Variable * symbols, Variable * startState, Variable * endStates, Variable * transitions);
 
-// TODO: agregar prototipos de las DeclarationGrammarActions
+Declaration * DecSymOrStaGrammarAction(SymOrState * symOrState, Variable * variable, String * value);
+
+Declaration * DecTransitionGrammarAction(Variable * variable, Transition * value);
+
+Declaration * DecSymOrStaArrGrammarAction(SymOrStaArr * symOrStaArr, Variable * variable, SymOrStaArrValue * value);
+
+Declaration * DecTransitionArrGrammarAction(Variable * variable, TrnArrValue * value);
+
+Declaration * DecDfaGrammarAction(Variable * variable, DfaValue * value); 
 
 AddOperand * AddOperandTransitionGrammarAction(Transition * transition);
 

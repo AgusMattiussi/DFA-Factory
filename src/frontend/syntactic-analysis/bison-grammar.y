@@ -98,11 +98,11 @@ decOrExec: dec[declaration] SEMICOLON decOrExec[next]								{ $$ = FirstDecGram
 	| /* lambda */ 																	{ $$ = DecOrExecLamdaGrammarAction();  }
 	;
 
-dec: symOrState VARIABLE EQUALS STRING												{ DummyGrammarAction();  } 
-	| TRANSITION VARIABLE EQUALS transition 										{ DummyGrammarAction();  }
-	| symOrStaArr VARIABLE EQUALS symstaArrValue 									{ DummyGrammarAction();  }
-	| TRANSITION OPEN_BRACKETS CLOSE_BRACKETS VARIABLE EQUALS trnArrValue 			{ DummyGrammarAction();  }
-	| DFA VARIABLE EQUALS dfaValue 													{ DummyGrammarAction();  }
+dec: symOrState[sos] VARIABLE[variable] EQUALS STRING[value]										{ $$ = DecSymOrStaGrammarAction($sos, $variable, $value);  } 
+	| TRANSITION VARIABLE[variable] EQUALS transition[value] 										{ $$ = DecTransitionGrammarAction($variable, $value);  }
+	| symOrStaArr[sosArr] VARIABLE[variable] EQUALS symstaArrValue[value] 							{ $$ = DecSymOrStaArrGrammarAction($sosArr, $variable, $value);  }
+	| TRANSITION OPEN_BRACKETS CLOSE_BRACKETS VARIABLE[variable] EQUALS trnArrValue[value] 			{ $$ = DecTransitionArrGrammarAction($variable, $value);  }
+	| DFA VARIABLE[variable] EQUALS dfaValue[value] 												{ $$ = DecDfaGrammarAction($variable, $value);  }
 	;
 
 symOrState: SYMBOL 																	{ $$ = SymbolGrammarAction();  } 

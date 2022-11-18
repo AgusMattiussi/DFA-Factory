@@ -177,14 +177,53 @@ DfaValue * DfaValueGrammarAction(Variable * states, Variable * symbols, Variable
 	return ret;
 }
 
-// TODO: El Declaration pide cosas de mas creo
-// TODO: Hacer el resto de las de dec
-// Declaration * DecSymStaVarGrammarAction(SymOrState * type, Variable * variable, String * value) {
-// 	LogDebug("\tDecSymStaVarGrammarAction");
-// 	Declaration *ret = malloc(sizeof(Declaration));
-// 	ret->type = SYM_SOST;
-// 	return ret;
-// }
+Declaration * DecSymOrStaGrammarAction(SymOrState * symOrState, Variable * variable, String * value){
+	LogDebug("\tDecSymOrStaGrammarAction");
+	Declaration * ret = malloc(sizeof(Declaration));
+	ret->type = STRING_DVT;
+	ret->variable = variable;
+	ret->symOrState = symOrState;
+	ret->symOrStateName = value;
+	return ret;
+}
+
+Declaration * DecTransitionGrammarAction(Variable * variable, Transition * value){
+	LogDebug("\tDecTransitionGrammarAction");
+	Declaration * ret = malloc(sizeof(Declaration));
+	ret->type = TRANS_DVT;
+	ret->variable = variable;
+	ret->transition = value;
+	return ret;
+}
+
+Declaration * DecSymOrStaArrGrammarAction(SymOrStaArr * symOrStaArr, Variable * variable, SymOrStaArrValue * value){
+	LogDebug("\tDecSymOrStaArrGrammarActionv");
+	Declaration * ret = malloc(sizeof(Declaration));
+	ret->type = SYMSTA_ARR_DVT;
+	ret->variable = variable;
+	ret->symOrStaArr = symOrStaArr;
+	ret->symOrStaArrValue = value;
+	return ret;
+}
+
+Declaration * DecTransitionArrGrammarAction(Variable * variable, TrnArrValue * value){
+	LogDebug("\tDecTransitionArrGrammarAction");
+	Declaration * ret = malloc(sizeof(Declaration));
+	ret->type = TRN_ARRAY_DVT;
+	ret->variable = variable;
+	// hace falta un trnArray?
+	ret->trnArrayValue = value;
+	return ret;
+}
+
+Declaration * DecDfaGrammarAction(Variable * variable, DfaValue * value){
+	LogDebug("\tDecDfaGrammarAction");
+	Declaration * ret = malloc(sizeof(Declaration));
+	ret->type = DFA_DVT;
+	ret->variable = variable;
+	ret->dfa = value;
+	return ret;
+} 
 
 AddOperand * AddOperandTransitionGrammarAction(Transition * transition) {
 	LogDebug("\tAddOperandTransitionGrammarAction");
