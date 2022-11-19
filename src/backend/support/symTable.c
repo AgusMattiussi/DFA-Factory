@@ -55,12 +55,34 @@ entry * getEntry(symbolTable * st, char * variableName) {
     return getEntryRec(st->first, variableName);
 }
 
+static char * getType(DataType type){
+    switch (type){
+    case DFA_DT:
+        return "dfa";
+    case TRANSITION_DT:
+        return "transition";
+    case STATE_DT:
+        return "state";
+    case SYMBOL_DT:
+        return "symbol";
+    case SYM_ARRAY_DT:
+        return "sym_array";
+    case STATE_ARRAY_DT:
+        return "state_array";
+    case TRN_ARRAY_DT:
+        return "trn_array";
+    default:
+        return "unknown";
+    }
+}
+
 void printTable(symbolTable * st){
-    printf("\tVariable\t\t | \tValue\t|\n");
+    printf("|\tVariable\t | \t  Value  \t|\n");
+    printf("|-----------------------------------------------|\n");
 
     entry * aux = st->first;
     for (int i = 0; i < st->size; i++){
-        printf("\t%20s\t | \t%u\t\n", aux->variableName, aux->dataType);
+        printf("|\t%12s\t | \t%12s\t|\n", aux->variableName, getType(aux->dataType));
         aux = aux->next;
     }
 
