@@ -133,8 +133,8 @@ token VariablePatternAction(const char * lexeme, const int length){
 	LogDebug("VariablePatternAction: '%s' (length = %d).", lexeme, length);
 	//yylval.strval = strdup(lexeme);
 	//yylval.token = VARIABLE;
-	// FIXME:
-	yylval.variable->value = calloc(length, sizeof(char));
+	yylval.variable = malloc(sizeof(Variable));
+	yylval.variable->value = calloc(length+1, sizeof(char));
 	strcpy(yylval.variable->value, lexeme);
 	return VARIABLE;
 }
@@ -143,8 +143,8 @@ token StringPatternAction(const char * lexeme, const int length){
 	LogDebug("StringPatternAction: '%s' (length = %d).", lexeme, length);
 	//yylval.strval = strdup(lexeme);
 	//yylval.token = STRING;
-	// FIXME:
-	yylval.string->value = calloc(length, sizeof(char));
+	yylval.string = malloc(sizeof(String));
+	yylval.string->value = calloc(length+1, sizeof(char));
 	strcpy(yylval.string->value, lexeme);
 	return STRING;
 }
