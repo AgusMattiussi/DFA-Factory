@@ -46,11 +46,8 @@ token VariablePatternAction(const char * lexeme, const int length);
 token StringPatternAction(const char * lexeme, const int length);
 
 token SymbolPatternAction(const char * lexeme);
-// token SymbolArrayPatternAction(const char * lexeme);
 token StatePatternAction(const char * lexeme);
-// token StateArrayPatternAction(const char * lexeme);
 token TransitionPatternAction(const char * lexeme);
-// token TransitionArrayPatternAction(const char * lexeme);
 token DFAPatternAction(const char * lexeme);
 
 // Patrón desconocido, permite abortar debido a un error de sintaxis.

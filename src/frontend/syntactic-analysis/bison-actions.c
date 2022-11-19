@@ -66,23 +66,10 @@ void DummyGrammarAction(){
 	return;
 }
 
-/* TODO: Aniade la variable a la tabla de simbolos */
-// TODO: Deberia copiar el nombre a un nuevo char * ?
-// TODO: revisar casteos
 static void addVariable(Variable * name, DataType type){
 	LogDebug("Tratando de agregar una variable (%s)\n", name->value);
 	addEntry(state.symbolTable, name->value, type);
 }
-
-/* typedef enum DataType {
-    DFA_DT,
-    TRANSITION_DT,
-    STATE_DT,
-    SYMBOL_DT,
-    SYM_ARRAY_DT,
-    STATE_ARRAY_DT,
-    TRN_ARRAY_DT
-} DataType; */
 
 VarOrString * VariableGrammarAction(Variable * variable) {
 	LogDebug("\tVariableGrammarAction: %s", variable->value);
@@ -255,7 +242,6 @@ AddOperand * AddOperandTransitionGrammarAction(Transition * transition) {
 	return ret;
 }
 
-//TODO: Agregar DFA a symtable
 AddOperand * AddOperandVarOrStringGrammarAction(VarOrString * varOrString) {
 	LogDebug("\tAddOperandVarOrStringGrammarAction");
 	AddOperand * ret = malloc(sizeof(AddOperand));
@@ -264,7 +250,6 @@ AddOperand * AddOperandVarOrStringGrammarAction(VarOrString * varOrString) {
 	return ret;
 }
 
-//TODO: yylval en Flex
 TransitionOrVar * TOVVariableGrammarAction(Variable * variable){
 	LogDebug("\tTOVVariableGrammarAction");
 	TransitionOrVar * ret = malloc(sizeof(TransitionOrVar));

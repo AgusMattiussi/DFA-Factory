@@ -89,13 +89,13 @@
 %start program
 %%
 
-program: decOrExec				 													{ $$ = DfaProgramGrammarAction($1);  }
+program: decOrExec				 																	{ $$ = DfaProgramGrammarAction($1);  }
 
 /* ==== Declaraciones ==== */
 
-decOrExec: dec[declaration] SEMICOLON decOrExec[next]								{ $$ = FirstDecGrammarAction($declaration, $next);  }	
-	| 	exec[execution] SEMICOLON decOrExec[next] 									{ $$ = FirstExecGrammarAction($execution, $next);  }																
-	| /* lambda */ 																	{ $$ = DecOrExecLamdaGrammarAction();  }
+decOrExec: dec[declaration] SEMICOLON decOrExec[next]												{ $$ = FirstDecGrammarAction($declaration, $next);  }	
+	| 	exec[execution] SEMICOLON decOrExec[next] 													{ $$ = FirstExecGrammarAction($execution, $next);  }																
+	| /* lambda */ 																					{ $$ = DecOrExecLamdaGrammarAction();  }
 	;
 
 dec: symOrState[sos] VARIABLE[variable] EQUALS STRING[value]										{ $$ = DecSymOrStaGrammarAction($sos, $variable, $value);  } 
@@ -105,33 +105,33 @@ dec: symOrState[sos] VARIABLE[variable] EQUALS STRING[value]										{ $$ = Dec
 	| DFA VARIABLE[variable] EQUALS dfaValue[value] 												{ $$ = DecDfaGrammarAction($variable, $value);  }
 	;
 
-symOrState: SYMBOL 																	{ $$ = SymbolGrammarAction();  } 
-	| STATE 																		{ $$ = StateGrammarAction();  }
+symOrState: SYMBOL 																					{ $$ = SymbolGrammarAction();  } 
+	| STATE 																						{ $$ = StateGrammarAction();  }
 	;
 
-symOrStaArr: symOrState OPEN_BRACKETS CLOSE_BRACKETS  								{ $$ = SymOrStaArrGrammarAction($1);  }
+symOrStaArr: symOrState OPEN_BRACKETS CLOSE_BRACKETS  												{ $$ = SymOrStaArrGrammarAction($1);  }
 	;
 
 transition: OPEN_CURLY varOrString[stateFrom] COMMA varOrString[stateTo] COMMA varOrString[symbol] CLOSE_CURLY				{ $$ = TransitionGrammarAction($stateFrom, $stateTo, $symbol);  }
 	;
 
-varOrString: VARIABLE 																{ $$ = VariableGrammarAction($1);  }
-	| STRING 																		{ $$ = StringGrammarAction($1);  }
+varOrString: VARIABLE 																				{ $$ = VariableGrammarAction($1);  }
+	| STRING 																						{ $$ = StringGrammarAction($1);  }
 	;
 
-symstaArrValue: OPEN_CURLY arr[array] CLOSE_CURLY 									{ $$ = SymstaArrValuegGrammarAction($array);  }
+symstaArrValue: OPEN_CURLY arr[array] CLOSE_CURLY 													{ $$ = SymstaArrValuegGrammarAction($array);  }
 	;
 
 
-arr: varOrString[vos] COMMA arr[next]												{ $$ = ArrayWithNextGrammarAction($vos, $next);  }
-	| varOrString																	{ $$ = ArrayNoNextGrammarAction($1);  }
+arr: varOrString[vos] COMMA arr[next]																{ $$ = ArrayWithNextGrammarAction($vos, $next);  }
+	| varOrString																					{ $$ = ArrayNoNextGrammarAction($1);  }
 	;  
 	
-trnArrValue: OPEN_CURLY trnArr[transitionArray] CLOSE_CURLY 						{ $$ = TrnArrValueGrammarAction($transitionArray);  }
+trnArrValue: OPEN_CURLY trnArr[transitionArray] CLOSE_CURLY 										{ $$ = TrnArrValueGrammarAction($transitionArray);  }
 	;
 
-trnArr: transitionOrVar[trnOrVar] COMMA trnArr[next] 								{ $$ = TrnArrWithNext($trnOrVar, $next);  }
-	| transitionOrVar 																{ $$ = TrnArrNoNext($1);  }
+trnArr: transitionOrVar[trnOrVar] COMMA trnArr[next] 												{ $$ = TrnArrWithNext($trnOrVar, $next);  }
+	| transitionOrVar 																				{ $$ = TrnArrNoNext($1);  }
 	;
 
 
@@ -142,16 +142,16 @@ dfaValue: OPEN_CURLY VARIABLE[states] COMMA VARIABLE[symbols] COMMA VARIABLE[sta
 
 /* ==== Prestaciones ==== */
 
-exec: add 																			{ $$ = ExecAddGrammarAction($1);  }
-	| rem 																			{ $$ = ExecRemGrammarAction($1);  }
-	| check 																		{ $$ = ExecCheckGrammarAction($1);  }
-	| complement 																	{ $$ = ExecComplementGrammarAction($1);  }
-	| join 																			{ $$ = ExecJoinGrammarAction($1); }
-	| print																			{ $$ = ExecPrintGrammarAction($1);  }
+exec: add 																							{ $$ = ExecAddGrammarAction($1);  }
+	| rem 																							{ $$ = ExecRemGrammarAction($1);  }
+	| check 																						{ $$ = ExecCheckGrammarAction($1);  }
+	| complement 																					{ $$ = ExecComplementGrammarAction($1);  }
+	| join 																							{ $$ = ExecJoinGrammarAction($1); }
+	| print																							{ $$ = ExecPrintGrammarAction($1);  }
 	; 																				
 
-check: VARIABLE[variable] CHECK symstaArrValue[ssav] 								{ $$ = CheckSymStaArrValueGrammarAction($variable, $ssav);  }	
-	| VARIABLE[variable] CHECK VARIABLE[rightOperand] 								{ $$ = CheckVariableGrammarAction($variable, $rightOperand);  }
+check: VARIABLE[variable] CHECK symstaArrValue[ssav] 												{ $$ = CheckSymStaArrValueGrammarAction($variable, $ssav);  }	
+	| VARIABLE[variable] CHECK VARIABLE[rightOperand] 												{ $$ = CheckVariableGrammarAction($variable, $rightOperand);  }
 	;
 
 
@@ -159,18 +159,18 @@ add: DFA VARIABLE[resultDFA] EQUALS ADD addOperand[leftOperand] TO VARIABLE[righ
  	|  VARIABLE[resultDFA] EQUALS ADD addOperand[leftOperand] TO VARIABLE[rightOperand]	 			{ $$ = ExistingDFAAddGrammarAction($resultDFA, $leftOperand, $rightOperand);  }
  	;
 
-addOperand: transition																{ $$ = AddOperandTransitionGrammarAction($1);  }
-	| varOrString																	{ $$ = AddOperandVarOrStringGrammarAction($1);  }
+addOperand: transition																				{ $$ = AddOperandTransitionGrammarAction($1);  }
+	| varOrString																					{ $$ = AddOperandVarOrStringGrammarAction($1);  }
 	;	
 
 
-rem: DFA VARIABLE[resultDFA] EQUALS REM varOrString[varOrStr] FROM VARIABLE[from]															{ $$ = NotExistingDFARemGrammarAction($resultDFA, $varOrStr, $from);  }
-	| VARIABLE[resultDFA] EQUALS REM varOrString[varOrStr] FROM VARIABLE[from]															{ $$ = ExistingDFARemGrammarAction($resultDFA, $varOrStr, $from);  }
+rem: DFA VARIABLE[resultDFA] EQUALS REM varOrString[varOrStr] FROM VARIABLE[from]					{ $$ = NotExistingDFARemGrammarAction($resultDFA, $varOrStr, $from);  }
+	| VARIABLE[resultDFA] EQUALS REM varOrString[varOrStr] FROM VARIABLE[from]						{ $$ = ExistingDFARemGrammarAction($resultDFA, $varOrStr, $from);  }
 	;
  
 
-complement: DFA VARIABLE[variable] EQUALS NOT VARIABLE[notVariable]  				{ $$ = NotExistingDFAComplementGrammarAction($variable, $notVariable);  }
-	| VARIABLE[variable] EQUALS NOT VARIABLE[notVariable] 							{ $$ = ExistingDFAComplementGrammarAction($variable, $notVariable);  }
+complement: DFA VARIABLE[variable] EQUALS NOT VARIABLE[notVariable]  								{ $$ = NotExistingDFAComplementGrammarAction($variable, $notVariable);  }
+	| VARIABLE[variable] EQUALS NOT VARIABLE[notVariable] 											{ $$ = ExistingDFAComplementGrammarAction($variable, $notVariable);  }
 	;
 
 
@@ -178,10 +178,10 @@ join: DFA VARIABLE[resultDFA] EQUALS VARIABLE[leftDFA] JOIN VARIABLE[rightDFA] t
 	| VARIABLE[resultDFA] EQUALS VARIABLE[leftDFA] JOIN VARIABLE[rightDFA] transitionOrVar[tov]					{ $$ = ExistingDFAJoinGrammarAction($resultDFA, $leftDFA, $rightDFA, $tov);  }
 	;
 
-transitionOrVar: VARIABLE															{ $$ = TOVVariableGrammarAction($1);  }
-	| transition																	{ $$ = TOVTransitionGrammarAction($1);  }
+transitionOrVar: VARIABLE																			{ $$ = TOVVariableGrammarAction($1);  }
+	| transition																					{ $$ = TOVTransitionGrammarAction($1);  }
 	;
 
-print: PRINT STRING 																{ $$ = PrintGrammarAction($2);  }
+print: PRINT STRING 																				{ $$ = PrintGrammarAction($2);  }
 	;
 %%
