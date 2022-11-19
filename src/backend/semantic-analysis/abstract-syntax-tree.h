@@ -182,13 +182,12 @@ typedef struct Declaration {
 	Variable * variable;
 	SymOrStaArr * symOrStaArr;
 	SymOrState * symOrState;
-	// TransitionArr * trnArray; TODO: hace falta?
 	union d_value {
 		DfaValue * dfa;
 		Transition * transition;
 		SymOrStaArrValue * symOrStaArrValue;
 		TrnArrValue * trnArrayValue;
-		String * symOrStateName;
+		String * symOrStateValue;
 	};
 } Declaration;
 

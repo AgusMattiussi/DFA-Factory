@@ -53,8 +53,7 @@ Program * DfaProgramGrammarAction(DecOrExec * decOrExec) {
 	ret->decOrExec = decOrExec;
 
 	state.succeed = true;
-
-	// state.result = value;
+	state.program = ret;
 	return ret;
 }
 
@@ -71,7 +70,9 @@ void DummyGrammarAction(){
 // TODO: Deberia copiar el nombre a un nuevo char * ?
 // TODO: revisar casteos
 static void addVariable(Variable * name, DataType type){
-	addEntry(state.symbolTable, (char *) name, type);
+	LogDebug("Tratando de agregar una variable\n");
+	return;
+	//addEntry(state.symbolTable, name->value, type);
 }
 
 VarOrString * VariableGrammarAction(Variable * variable) {
@@ -183,7 +184,7 @@ Declaration * DecSymOrStaGrammarAction(SymOrState * symOrState, Variable * varia
 	ret->type = STRING_DVT;
 	ret->variable = variable;
 	ret->symOrState = symOrState;
-	ret->symOrStateName = value;
+	ret->symOrStateValue = value;
 	return ret;
 }
 
@@ -271,7 +272,7 @@ Add * ExistingDFAAddGrammarAction(Variable * resultDFA, AddOperand * leftOperand
 
 Add * NotExistingDFAAddGrammarAction(Variable * resultDFA, AddOperand * leftOperand, Variable * rightOperand) {
 	LogDebug("\tNotExistingDFAAddGrammarAction");
-	addVariable((Variable *) resultDFA->value, DFA_DT);
+	addVariable(resultDFA, DFA_DT);
 	return ExistingDFAAddGrammarAction(resultDFA, leftOperand, rightOperand);
 }
 
@@ -286,7 +287,7 @@ Rem * ExistingDFARemGrammarAction(Variable * resultDFA, VarOrString * varOrStr, 
 
 Rem * NotExistingDFARemGrammarAction(Variable * resultDFA, VarOrString * varOrStr, Variable * from) {
 	LogDebug("\tNotExistingDFARemGrammarAction");
-	addVariable((Variable *) resultDFA->value, DFA_DT);
+	addVariable(resultDFA, DFA_DT);
 	return ExistingDFARemGrammarAction(resultDFA, varOrStr, from);
 }
 
@@ -318,7 +319,7 @@ Complement * ExistingDFAComplementGrammarAction(Variable * variable, Variable * 
 
 Complement * NotExistingDFAComplementGrammarAction(Variable * variable, Variable * notVariable) {
 	LogDebug("\tNotExistingDFAComplementGrammarAction");
-	addVariable((Variable *) variable->value, DFA_DT);
+	addVariable(variable, DFA_DT);
 	return ExistingDFAComplementGrammarAction(variable, notVariable);
 }
 
@@ -334,7 +335,7 @@ Join * ExistingDFAJoinGrammarAction(Variable * resultDFA, Variable * leftDFA, Va
 
 Join * NotExistingDFAJoinGrammarAction(Variable * resultDFA, Variable * leftDFA, Variable * rightDFA, TransitionOrVar * tov) {
 	LogDebug("\tNotExistingDFAJoinGrammarAction");
-	addVariable((Variable *) resultDFA->value, DFA_DT);
+	addVariable(resultDFA, DFA_DT);
 	return ExistingDFAJoinGrammarAction(resultDFA, leftDFA, rightDFA, tov);
 }
 

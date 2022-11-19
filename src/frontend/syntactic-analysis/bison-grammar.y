@@ -112,8 +112,7 @@ symOrState: SYMBOL 																	{ $$ = SymbolGrammarAction();  }
 symOrStaArr: symOrState OPEN_BRACKETS CLOSE_BRACKETS  								{ $$ = SymOrStaArrGrammarAction($1);  }
 	;
 
-transition: OPEN_CURLY varOrString[stateFrom]
-	 COMMA varOrString[stateTo] COMMA varOrString[symbol] CLOSE_CURLY				{ $$ = TransitionGrammarAction($stateFrom, $stateTo, $symbol);  }
+transition: OPEN_CURLY varOrString[stateFrom] COMMA varOrString[stateTo] COMMA varOrString[symbol] CLOSE_CURLY				{ $$ = TransitionGrammarAction($stateFrom, $stateTo, $symbol);  }
 	;
 
 varOrString: VARIABLE 																{ $$ = VariableGrammarAction($1);  }
@@ -136,9 +135,7 @@ trnArr: transitionOrVar[trnOrVar] COMMA trnArr[next] 								{ $$ = TrnArrWithNe
 	;
 
 
-dfaValue: OPEN_CURLY VARIABLE[states] COMMA VARIABLE[symbols] 
-		COMMA VARIABLE[startState] COMMA VARIABLE[endStates] COMMA
-		VARIABLE[trns] CLOSE_CURLY													{ $$ = DfaValueGrammarAction($states, $symbols, $startState, $endStates, $trns); }
+dfaValue: OPEN_CURLY VARIABLE[states] COMMA VARIABLE[symbols] COMMA VARIABLE[startState] COMMA VARIABLE[endStates] COMMA VARIABLE[trns] CLOSE_CURLY		{ $$ = DfaValueGrammarAction($states, $symbols, $startState, $endStates, $trns); }
 	;
 // {estados, simbolos, estado inicial, finales, transiciones}
 
@@ -167,10 +164,8 @@ addOperand: transition																{ $$ = AddOperandTransitionGrammarAction($
 	;	
 
 
-rem: DFA VARIABLE[resultDFA] EQUALS REM varOrString[varOrStr]
-	 FROM VARIABLE[from]															{ $$ = NotExistingDFARemGrammarAction($resultDFA, $varOrStr, $from);  }
-	| VARIABLE[resultDFA] EQUALS REM varOrString[varOrStr]
-	 FROM VARIABLE[from]															{ $$ = ExistingDFARemGrammarAction($resultDFA, $varOrStr, $from);  }
+rem: DFA VARIABLE[resultDFA] EQUALS REM varOrString[varOrStr] FROM VARIABLE[from]															{ $$ = NotExistingDFARemGrammarAction($resultDFA, $varOrStr, $from);  }
+	| VARIABLE[resultDFA] EQUALS REM varOrString[varOrStr] FROM VARIABLE[from]															{ $$ = ExistingDFARemGrammarAction($resultDFA, $varOrStr, $from);  }
 	;
  
 
