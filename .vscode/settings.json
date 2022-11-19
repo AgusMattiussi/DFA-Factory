@@ -8,7 +8,8 @@
         "shared.h": "c",
         "stdio.h": "c",
         "calculator.h": "c",
-        "abstract-syntax-tree.h": "c"
+        "abstract-syntax-tree.h": "c",
+        "symtable.h": "c"
     },
     "cmake.configureOnOpen": true
 }

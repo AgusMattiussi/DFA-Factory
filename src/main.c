@@ -30,6 +30,9 @@ const int main(const int argumentCount, const char ** arguments) {
 			// inicial de la gramática satisfactoriamente.
 			if (state.succeed) {
 				LogInfo("La compilacion fue exitosa.");
+				printf(" ========= SYM TABLE ======== \n");
+				printTable(state.symbolTable);
+				printf(" ============================ \n");
 				Generator(777);
 			}
 			else {

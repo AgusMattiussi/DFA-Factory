@@ -17,17 +17,18 @@ void freeList(symbolTable * st) {
     free(st);
 }
 
-static entry * addRec(entry * first, char * variableName, int * flag) {
+static entry * addRec(entry * first, char * variableName, DataType type, int * flag) {
     int c;
     if ( first==NULL || ( c = strcmp(first->variableName, variableName)) > 0) {
         entry * aux = malloc(sizeof(entry));
         aux->variableName = variableName;
+        aux->dataType = type;
         aux->next = first;
         *flag = 1;
         return aux;
     }
     if ( c < 0) {
-        first->next = addRec(first->next, variableName, flag);
+        first->next = addRec(first->next, variableName, type, flag);
     }
     return first;
 }
@@ -35,7 +36,7 @@ static entry * addRec(entry * first, char * variableName, int * flag) {
 
 int addEntry(symbolTable * st, char * variableName, DataType type) {
     int added = 0;
-    st->first = addRec(st->first, variableName, &added);
+    st->first = addRec(st->first, variableName, type, &added);
     st->size += added;
     return added;
 }
@@ -52,5 +53,16 @@ static entry * getEntryRec(entry * first, char * variableName){
 
 entry * getEntry(symbolTable * st, char * variableName) {
     return getEntryRec(st->first, variableName);
+}
+
+void printTable(symbolTable * st){
+    printf("\tVariable\t\t | \tValue\t|\n");
+
+    entry * aux = st->first;
+    for (int i = 0; i < st->size; i++){
+        printf("\t%20s\t | \t%u\t\n", aux->variableName, aux->dataType);
+        aux = aux->next;
+    }
+
 }
 

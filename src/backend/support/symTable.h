@@ -31,5 +31,6 @@ symbolTable * initSymbolTable();
 void freeList(symbolTable * st);
 int addEntry(symbolTable * st, char * variableName, DataType type);
 entry * getEntry(symbolTable * st, char * variableName);
+void printTable(symbolTable * st);
 
 #endif
