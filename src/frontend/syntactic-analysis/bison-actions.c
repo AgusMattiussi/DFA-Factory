@@ -70,10 +70,19 @@ void DummyGrammarAction(){
 // TODO: Deberia copiar el nombre a un nuevo char * ?
 // TODO: revisar casteos
 static void addVariable(Variable * name, DataType type){
-	LogDebug("Tratando de agregar una variable\n");
-	return;
-	//addEntry(state.symbolTable, name->value, type);
+	LogDebug("Tratando de agregar una variable (%s)\n", name->value);
+	addEntry(state.symbolTable, name->value, type);
 }
+
+/* typedef enum DataType {
+    DFA_DT,
+    TRANSITION_DT,
+    STATE_DT,
+    SYMBOL_DT,
+    SYM_ARRAY_DT,
+    STATE_ARRAY_DT,
+    TRN_ARRAY_DT
+} DataType; */
 
 VarOrString * VariableGrammarAction(Variable * variable) {
 	LogDebug("\tVariableGrammarAction: %s", variable->value);
@@ -185,6 +194,10 @@ Declaration * DecSymOrStaGrammarAction(SymOrState * symOrState, Variable * varia
 	ret->variable = variable;
 	ret->symOrState = symOrState;
 	ret->symOrStateValue = value;
+
+	DataType type = symOrState->type == SYM_SOST ? SYMBOL_DT : STATE_DT;
+	addVariable(variable, type);
+
 	return ret;
 }
 
@@ -194,6 +207,8 @@ Declaration * DecTransitionGrammarAction(Variable * variable, Transition * value
 	ret->type = TRANS_DVT;
 	ret->variable = variable;
 	ret->transition = value;
+
+	addVariable(variable, TRANSITION_DT);
 	return ret;
 }
 
@@ -204,6 +219,9 @@ Declaration * DecSymOrStaArrGrammarAction(SymOrStaArr * symOrStaArr, Variable * 
 	ret->variable = variable;
 	ret->symOrStaArr = symOrStaArr;
 	ret->symOrStaArrValue = value;
+
+	DataType type = symOrStaArr->symOrState->type == SYM_SOST ? SYM_ARRAY_DT : STATE_ARRAY_DT;
+	addVariable(variable, type);
 	return ret;
 }
 
@@ -212,8 +230,9 @@ Declaration * DecTransitionArrGrammarAction(Variable * variable, TrnArrValue * v
 	Declaration * ret = malloc(sizeof(Declaration));
 	ret->type = TRN_ARRAY_DVT;
 	ret->variable = variable;
-	// hace falta un trnArray?
 	ret->trnArrayValue = value;
+
+	addVariable(variable, TRN_ARRAY_DT);
 	return ret;
 }
 
@@ -223,6 +242,8 @@ Declaration * DecDfaGrammarAction(Variable * variable, DfaValue * value){
 	ret->type = DFA_DVT;
 	ret->variable = variable;
 	ret->dfa = value;
+
+	addVariable(variable, DFA_DT);
 	return ret;
 } 
 
