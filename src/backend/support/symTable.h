@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 typedef enum DataType {
     DFA_DT,
@@ -14,11 +15,10 @@ typedef enum DataType {
     TRN_ARRAY_DT
 } DataType;
 
-
 typedef struct entry {
     char * variableName;
     DataType dataType;
-    //TODO: Valor de inicializacion?    
+    void * value;  
     struct entry * next;
 } entry;
 
@@ -27,10 +27,18 @@ typedef struct symbolTable {
     entry * first;
 } symbolTable;
 
+typedef struct TransitionValue {
+	char * stateFrom;
+	char * stateTo;
+	char * symbol;
+} TransitionValue;
+
 symbolTable * initSymbolTable();
 void freeList(symbolTable * st);
 int addEntry(symbolTable * st, char * variableName, DataType type);
 entry * getEntry(symbolTable * st, char * variableName);
 void printTable(symbolTable * st);
-
+bool exists(symbolTable * st, char * variableName, DataType type);
+int setValue(symbolTable * st, char * variableName, void * value);
+void setEntryValue(entry * entry, void * value);
 #endif

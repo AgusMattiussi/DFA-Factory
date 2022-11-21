@@ -404,6 +404,7 @@ DecOrExec * FirstDecGrammarAction(Declaration * dec, DecOrExec * next) {
 	LogDebug("\tFirstDecGrammarAction");
 	DecOrExec * ret = malloc(sizeof(DecOrExec));
 	ret->declaration = dec;
+	ret->type = DEC_DOET;
 	ret->next = next;
 	return ret;
 }
@@ -412,13 +413,12 @@ DecOrExec * FirstExecGrammarAction(Exec * exec, DecOrExec * next) {
 	LogDebug("\tFirstExecGrammarAction");
 	DecOrExec * ret = malloc(sizeof(DecOrExec));
 	ret->exec = exec;
+	ret->type = EXEC_DOET;
 	ret->next = next;
 	return ret;
 }
 
 DecOrExec * DecOrExecLamdaGrammarAction() {
 	LogDebug("\tDecOrExecLamdaGrammarAction");
-	DecOrExec * ret = malloc(sizeof(DecOrExec));
-	ret->next = NULL;
-	return ret;
+	return NULL;
 }

@@ -23,6 +23,7 @@ static entry * addRec(entry * first, char * variableName, DataType type, int * f
         entry * aux = malloc(sizeof(entry));
         aux->variableName = variableName;
         aux->dataType = type;
+        aux->value = NULL;
         aux->next = first;
         *flag = 1;
         return aux;
@@ -55,6 +56,23 @@ entry * getEntry(symbolTable * st, char * variableName) {
     return getEntryRec(st->first, variableName);
 }
 
+bool exists(symbolTable * st, char * variableName, DataType type){
+    entry * found = getEntry(st, variableName);
+    return found != NULL && found->dataType == type;
+}
+
+void setEntryValue(entry * entry, void * value){
+    entry->value = value;
+} 
+
+int setValue(symbolTable * st, char * variableName, void * value){
+    entry * found = getEntry(st, variableName);
+    if(found == NULL)
+        return -1;
+    found->value = value;
+    return 0;
+}
+
 static char * getType(DataType type){
     switch (type){
     case DFA_DT:
@@ -77,7 +95,7 @@ static char * getType(DataType type){
 }
 
 void printTable(symbolTable * st){
-    printf("|\tVariable\t | \t  Value  \t|\n");
+    printf("|\tVariable\t | \t  Type  \t|\n");
     printf("|-----------------------------------------------|\n");
 
     entry * aux = st->first;

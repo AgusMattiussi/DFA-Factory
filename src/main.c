@@ -23,7 +23,7 @@ const int main(const int argumentCount, const char ** arguments) {
 
 	// Compilar el programa de entrada.
 	LogInfo("Compilando...\n");
-	const int result = yyparse();
+	int result = yyparse();
 	switch (result) {
 		case 0:
 			// La variable "succeed" es la que setea Bison al identificar el símbolo
@@ -33,7 +33,7 @@ const int main(const int argumentCount, const char ** arguments) {
 				printf(" =================== SYM TABLE ================== \n");
 				printTable(state.symbolTable);
 				printf(" ================================================ \n");
-				Generator(777);
+				result = Generator(state.program, state.symbolTable);
 			}
 			else {
 				LogError("Se produjo un error en la aplicacion.");

@@ -1,13 +1,13 @@
 /* Declaramos las variables previamente */
 sta initial = "q0";
 sta final = "qf";
-sta[] states = {inicial, final};
+sta[] states = {initial, final};
 sta[] finalStates = {final};
 sym nums = "123456789";
 sym[] symbols = {"a", "bb", nums};
 trn[] transitions = {
-					{inicial, final, "a"},
-					{final, inicial, nums},
+					{initial, final, "a"},
+					{final, initial, nums},
 					{final, final, "bb"}
 };
 
@@ -20,6 +20,6 @@ dfa myAuto = {
 		transitions
 };
 
-trn newTransition = {inicial, final, "bb"};
+trn newTransition = {initial, final, "bb"};
 
 dfa myAuto2 = ADD newTransition TO myAuto;
