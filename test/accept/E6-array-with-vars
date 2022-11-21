@@ -1,0 +1,2 @@
+sym mySym = "a";
+sym[] array = {"b", mySym, "c"};

@@ -62,21 +62,38 @@ int DecCode(Declaration * dec){
 	return 0;
 }
 
-static bool validateDfaVariables(DfaValue * dfaValue){
-	if(!exists(st, dfaValue->initial->value, STATE_DT))
+static bool validateDfaVariables(DfaValue *dfaValue)
+{
+	if (!exists(st, dfaValue->initial->value, STATE_DT))
+	{
+		LogDebug("%s no es un state",  dfaValue->initial->value);
 		return false;
-	if(!exists(st, dfaValue->states->value, STATE_ARRAY_DT))
+	}
+	if (!exists(st, dfaValue->states->value, STATE_ARRAY_DT))
+	{
+		LogDebug("%s no es un states array", dfaValue->states->value);
 		return false;
-	if(!exists(st, dfaValue->finalStates->value, STATE_ARRAY_DT))
+	}
+	if (!exists(st, dfaValue->finalStates->value, STATE_ARRAY_DT))
+	{
+		LogDebug("%s no es un states array", dfaValue->finalStates->value);
 		return false;
-	if(!exists(st, dfaValue->symbols->value, SYM_ARRAY_DT))
+	}
+	if (!exists(st, dfaValue->symbols->value, SYM_ARRAY_DT))
+	{
+		LogDebug("%s no es un sym array", dfaValue->symbols->value);
 		return false;
-	if(!exists(st, dfaValue->transitions->value, TRN_ARRAY_DT))
+	}
+	if (!exists(st, dfaValue->transitions->value, TRN_ARRAY_DT))
+	{
+		LogDebug("%s no es un trn array", dfaValue->transitions->value);
 		return false;
+	}
 	return true;
 }
 
 int DfaValueCode(Variable * variable, DfaValue * dfaValue){
+	LogDebug("DfaValueCode\n");
 	if (!validateDfaVariables(dfaValue)) {
 		return -1;
 	}
@@ -105,11 +122,9 @@ int TransitionCode(Variable * variable, Transition * trnValue){
 	TransitionValue * value = malloc(sizeof(TransitionValue));
 
 	value->stateFrom = getTransitionParam(trnValue->stateFrom, STATE_DT);
-	if(value->stateFrom == NULL){
-		LogDebug("FALLE BIEN\n");
+	if(value->stateFrom == NULL)
 		return -1;
-	}
-
+		
 	value->stateTo = getTransitionParam(trnValue->stateTo, STATE_DT);
 	if(value->stateTo == NULL)
 		return -1;
@@ -121,26 +136,121 @@ int TransitionCode(Variable * variable, Transition * trnValue){
 	return setValue(st, variable->value, value);
 }
 
-int TrnArrayCode(Variable * variable, TrnArrValue * trnArrValue){
-	return 0;
+TrnArrayValue * AddTransitionArrayValue(TrnArrayValue * arr, TransitionValue * value) {
+	if (arr == NULL)
+	{
+		TrnArrayValue *aux = malloc(sizeof(TrnArrayValue));
+		aux->value = value;
+		aux->next = NULL;
+		return aux;
+	}
+	else
+	{
+		arr->next = AddTransitionArrayValue(arr->next, value);
+	}
+	return arr;
+}
+
+int TrnArrayCode(Variable *variable, TrnArrValue *trnArrValue){
+	LogDebug("TrnArrayCode\n");
+	TrnArrayValue * value = NULL;
+	TransitionArr *current = trnArrValue->transitionArr;
+	entry *entry;
+	TrnArrayValue *aux = value;
+	while (current != NULL)
+	{
+		if (current->transitionOrVar->type == VAR_TOVT)
+		{
+			if (!exists(st, current->transitionOrVar->variable->value, TRANSITION_DT))
+			{
+				return -1;
+			}
+			entry = getEntry(st, current->transitionOrVar->variable->value);
+			aux = AddTransitionArrayValue(aux, (TransitionValue *)entry->value);
+		}
+		else
+		{
+			TransitionValue * auxTrn = malloc(sizeof(TransitionValue));
+
+			auxTrn->stateFrom = getTransitionParam(current->transitionOrVar->transition->stateFrom, STATE_DT);
+			if (auxTrn->stateFrom == NULL)
+				return -1;
+
+			auxTrn->stateTo = getTransitionParam(current->transitionOrVar->transition->stateTo, STATE_DT);
+			if (auxTrn->stateTo == NULL)
+				return -1;
+
+			auxTrn->symbol = getTransitionParam(current->transitionOrVar->transition->symbol, SYMBOL_DT);
+			if (auxTrn->symbol == NULL)
+				return -1;
+
+			aux = AddTransitionArrayValue(aux,auxTrn);
+		}
+		aux = aux->next;
+		current = current->next;
+	}
+	return setValue(st, variable->value, value);
+}
+
+static ArrayValue *AddArrayValue(ArrayValue *arr, char *value)
+{
+	if (arr == NULL)
+	{
+		ArrayValue *aux = malloc(sizeof(ArrayValue));
+		aux->value = calloc(strlen(value), sizeof(char));
+		strcpy(aux->value, value);
+		aux->next = NULL;
+		return aux;
+	}
+	else
+	{
+		arr->next = AddArrayValue(arr->next, value);
+	}
+	return arr;
 }
 
 int SymStaArrayCode(Variable * variable, SymOrStaArr * symOrStaArr, SymOrStaArrValue * symOrStaArrValue) {
-	return 0;
+	LogDebug("SymStaArrayCode\n");
+	ArrayValue * value = NULL;
+	Array * current = symOrStaArrValue->array;
+	entry * entry;
+	ArrayValue * aux = value;
+	while (current != NULL)
+	{
+		if (current->VarOrString->type == VAR_VOST)
+		{
+			if (symOrStaArr->symOrState->type == SYM_SOST)
+			{
+				if (!exists(st, current->VarOrString->variable->value, SYMBOL_DT))
+				{
+					return -1;
+				}
+			}
+			else
+			{
+				if (!exists(st, current->VarOrString->variable->value, STATE_DT))
+				{
+					return -1;
+				}
+			}
+			entry = getEntry(st,current->VarOrString->variable->value);
+			aux = AddArrayValue(aux, (char *)entry->value );
+		}
+		else
+		{
+			aux = AddArrayValue(aux, current->VarOrString->string->value);
+		}
+		aux = aux->next;
+		current = current->next;
+	}	
+	return setValue(st,variable->value,value);
 }
 
 int SymStaCode(Variable * variable, SymOrState * symOrSta, String * symOrStaValue) {
+	LogDebug("SymStaCode\n");
 	return setValue(st, variable->value, symOrStaValue->value);
 }
 
-/* typedef enum  {
-	DFA_DVT,
-	TRANS_DVT,
-	TRN_ARRAY_DVT,
-	SYMSTA_ARR_DVT,
-	STRING_DVT
-} DecValueType;
- */
 int ExecCode(Exec * exec) {
 	return 0;
 }

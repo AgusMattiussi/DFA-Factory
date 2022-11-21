@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "logger.h"
+
 
 typedef enum DataType {
     DFA_DT,
@@ -32,6 +34,16 @@ typedef struct TransitionValue {
 	char * stateTo;
 	char * symbol;
 } TransitionValue;
+
+typedef struct ArrayValue {
+	char * value;
+	struct ArrayValue * next;
+} ArrayValue;
+
+typedef struct TrnArrayValue {
+	TransitionValue * value;
+	struct TrnArrayValue * next;
+} TrnArrayValue;
 
 symbolTable * initSymbolTable();
 void freeList(symbolTable * st);
