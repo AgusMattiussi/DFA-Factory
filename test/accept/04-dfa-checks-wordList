@@ -1,5 +1,5 @@
 /* Declaramos las variables previamente */
-sta initial = "q0";
+sta inicial = "q0";
 sta final = "qf";
 sta[] states = {inicial, final};
 sta[] finalStates = {final};
@@ -15,7 +15,7 @@ trn[] transitions = {
 dfa myAuto = {
         states,
         symbols,
-        initial,
+        inicial,
         finalStates,
 				transitions
 };
