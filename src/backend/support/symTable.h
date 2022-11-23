@@ -45,6 +45,18 @@ typedef struct TrnArrayValue {
 	struct TrnArrayValue * next;
 } TrnArrayValue;
 
+typedef struct automata {
+	ArrayValue * symbols;
+	ArrayValue * states;
+	ArrayValue * finalStates;
+	TrnArrayValue * transitions;
+	size_t startIdx;
+	size_t currentStateIdx;
+	size_t symCount;
+	size_t staCount;
+	size_t ** delta;
+} automata;
+
 symbolTable * initSymbolTable();
 void freeList(symbolTable * st);
 int addEntry(symbolTable * st, char * variableName, DataType type);

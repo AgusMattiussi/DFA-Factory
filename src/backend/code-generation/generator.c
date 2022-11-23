@@ -92,13 +92,59 @@ static bool validateDfaVariables(DfaValue *dfaValue)
 	return true;
 }
 
+
+/**
+ * 1) Recorro y cuento simbolos -> asigno symcount
+ * 2) Recorro y cuento estados -> asigno stacount y startidx
+ * 3) inicializo delta de symCount*staCount
+ * 4) Recorro transiciones asigno delta[stateFrom][sym] = stateTo
+ * 
+**/
+
+
+// TODO: LIBERAR TODO!!!!!!!
+// TODO: Despues de los CHECKS resetear valores del DFA
 int DfaValueCode(Variable * variable, DfaValue * dfaValue){
 	LogDebug("DfaValueCode\n");
 	if (!validateDfaVariables(dfaValue)) {
 		return -1;
 	}
 
-	// TODO:
+	/* Inicializa variables en 0*/
+	automata * this = calloc(1, sizeof(automata)); 
+
+	/* Inicializamos las variables */
+	entry * symbolsEntry = getEntry(st, dfaValue->symbols->value);
+	this->symbols = (ArrayValue *) symbolsEntry->value;
+	entry * statesEntry = getEntry(st, dfaValue->states->value);
+	this->states = (ArrayValue *) statesEntry->value;
+	entry * transitionsEntry = getEntry(st, dfaValue->transitions->value);
+	this->transitions = (TrnArrayValue *) transitionsEntry->value;
+
+	ArrayValue * currSym = this->symbols;
+	while (currSym != NULL){
+		this->symCount++;
+		currSym = currSym->next;
+	}
+
+	ArrayValue * currState = this->states;
+	while (currState != NULL){
+		/* Indice del estado inicial*/
+		if(strcmp(currState->value, dfaValue->initial->value)){
+			this->currentStateIdx = this->staCount;
+		}
+		this->staCount++;
+		currState = currState->next;
+	}
+	/* Siempre empieza en el estado inicial */
+	this->currentStateIdx = this->startIdx;
+
+	this->delta = malloc(this->staCount * this->symCount * sizeof(size_t));
+	/* Usamos la cantidad de estados + 1 (un numero de estado inalcanzable) 
+		para saber si esta posicion del array "esta vacia" */
+	memset(this->delta, this->staCount + 1, this->staCount * this->symCount);
+	
+
 	return 0;
 }
 
