@@ -177,6 +177,14 @@ int DfaValueCode(Variable * variable, DfaValue * dfaValue) {
 		}
 		currentTrn = currentTrn->next;
 	}
+
+	printf("Original:\n");
+	for(int i=0; i < this->staCount; i++) {
+        for(int j=0; j < this->symCount; j++) {
+            printf(" %zd ", this->delta[i][j]);
+        }
+		printf("\n");
+    }
 	
 	return setValue(st, variable->value, this);
 }
@@ -331,7 +339,6 @@ int SymStaCode(Variable * variable, SymOrState * symOrSta, String * symOrStaValu
 	return setValue(st, variable->value, symOrStaValue->value);
 }
 
-
 int ExecCode(Exec * exec) {
 	switch (exec->type) {
 		case ADD_EVT:
@@ -356,10 +363,6 @@ int PrintCode(Print * toPrint){
 	fprintf(stdout, "# %s\n", toPrint->string->value);
 	return 0;
 }
-
-/* static ArrayValue * annonArrayValue(){
-
-} */
 
 static bool isInFinalState(automata * automata){
 	ArrayValue * final = automata->finalStates;
@@ -475,8 +478,107 @@ int AddCode(Add * add){
 	return 0;
 }
 
+static int remFromList(automata * myAuto, ArrayValue * list, char * state) {
+	LogDebug("remFromList");
+    ArrayValue * current = list;
+    if(strcmp(current->value, state) == 0) { //remuevo el primero
+        myAuto->states = NULL;
+        free(current);
+        return 0;
+    } //el primero no es
+
+	if(current->next == NULL)
+		return -1;
+
+	ArrayValue * nextState = current->next;
+    while(current != NULL) {
+        if(strcmp(nextState->value, state) == 0) {
+            current->next = nextState->next;
+            free(nextState);
+            return 0;
+        }
+        current = current->next;
+        if(nextState != NULL)
+            nextState = nextState->next;
+    }
+    return -1;
+}
+
 int RemoveCode(Rem * rem){
-	return 0;
+    LogDebug("RemCode");
+    
+    if (!exists(st, rem->from->value, DFA_DT)){
+        LogDebug("El DFA no existe");
+        return -1;
+    } 
+    
+    entry * dfa = getEntry(st, rem->from->value);
+    automata * myAuto = (automata *)dfa->value;
+
+    char * state;
+    VarOrString * varOrStr = rem->varOrString;
+
+
+    if(varOrStr->type == VAR_VOST) {
+        if(!exists(st, varOrStr->variable->value, STATE_DT)) {
+            return -1;
+        }
+        entry * stateEntry = getEntry(st, varOrStr->variable->value);
+        state = (char *)stateEntry->value;
+    } else { //type == STRING_VOST
+        state = varOrStr->string->value;
+    } 
+	
+	int idx = getIndex(myAuto->states, state);
+	int rem1 = -1, rem2 = -1;
+
+    rem1 = remFromList(myAuto, myAuto->states, state);
+    rem2 = remFromList(myAuto, myAuto->finalStates, state);
+
+    if(rem1 == -1)
+        LogDebug("No se encontró el estado a borrar");
+
+	for(int i=0; i<myAuto->staCount; i++) {
+        for(int j=0; j<myAuto->symCount; j++) {
+            if(i == idx || myAuto->delta[i][j] == idx || myAuto->delta[i][j] == myAuto->staCount) {
+                myAuto->delta[i][j] = myAuto->staCount - 1;
+            } else if(idx < myAuto->delta[i][j]) {
+				myAuto->delta[i][j]--;
+			}
+        }
+    }
+	
+	if(rem1 == 0)
+		myAuto->staCount--;
+    
+    TrnArrayValue * currentTrn = myAuto->transitions;
+    TrnArrayValue * nextTrn = currentTrn->next;
+	TrnArrayValue * aux = NULL;
+	
+	while((strcmp(currentTrn->value->stateFrom, state) == 0) || (strcmp(currentTrn->value->stateTo, state) == 0)) {
+		myAuto->transitions = nextTrn;
+		aux = currentTrn->next;
+		nextTrn = nextTrn->next;	
+		free(currentTrn);
+		currentTrn = aux;				
+	}
+
+	currentTrn = myAuto->transitions;
+	nextTrn = currentTrn->next;
+	while(currentTrn != NULL) {
+            if((strcmp(currentTrn->value->stateFrom, state) == 0) || (strcmp(currentTrn->value->stateTo, state) == 0))  {
+                currentTrn->next = nextTrn->next;
+                free(nextTrn);
+            }
+            currentTrn = currentTrn->next;
+            if(nextTrn != NULL)
+                nextTrn = nextTrn->next;
+    }
+
+	if(!exists(st, rem->variable->value, DFA_DT))
+		addEntry(st, rem->variable->value, DFA_DT);
+
+    return setValue(st, rem->variable->value, myAuto);
 }
 
 static bool isFinal(char * state, ArrayValue * finalStates){
@@ -490,6 +592,7 @@ static bool isFinal(char * state, ArrayValue * finalStates){
 }
 
 int ComplementCode(Complement * complement) {
+    LogDebug("ComplementCode");
 	if(!exists(st, complement->notVariable->value, DFA_DT))
 		return -1;
 
