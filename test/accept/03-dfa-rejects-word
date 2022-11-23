@@ -18,4 +18,4 @@ dfa myAuto = {
         finalStates,
 				transitions
 };
-myauto CHECK {nums};
+myAuto CHECK {nums};

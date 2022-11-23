@@ -211,7 +211,6 @@ int TransitionCode(Variable * variable, Transition * trnValue) {
 	value->symbol = getTransitionParam(trnValue->symbol, SYMBOL_DT);
 	if(value->symbol == NULL)
 		return -1;
-
 	return setValue(st, variable->value, value);
 }
 
@@ -461,18 +460,152 @@ int CheckCode(Check * check){
 	return 0;
 }
 
+static ArrayValue * copyArrayValue(ArrayValue * old, int * count) {
+	ArrayValue * aux = old;
+	ArrayValue * new = NULL;
+	while (aux != NULL)
+	{
+		AddArrayValue(&new,aux->value);
+		aux = aux->next;
+		(*count)++;
+	}
+	return new;
+}
+
+static TrnArrayValue * copyTrnArrayValue(TrnArrayValue * old) {
+	TrnArrayValue * aux = old;
+	TrnArrayValue * new = NULL;
+	while (aux != NULL)
+	{
+		AddTransitionArrayValue(&new,aux->value);
+		aux = aux->next;
+	}
+	return new;
+}
 
 int AddCode(Add * add){
-	if (!exists(st, add->rightOperand->value,DFA_DT))
-		return -1;
-	if (!exists(st,add->variable->value,DFA_DT))
+	LogDebug("AddCode\n");
+	if (!exists(st, add->rightOperand->value, DFA_DT))
 	{
-		addEntry(st,add->variable->value,DFA_DT);
+		LogDebug("rightOperand no existe\n");
+		return -1;
 	}
+	entry * rightOperandEntry = getEntry(st, add->rightOperand->value);
+	if (!exists(st, add->variable->value, DFA_DT))
+	{
+		LogDebug("variable no existe, la creo\n");
+		addEntry(st, add->variable->value, DFA_DT);
+	}
+	entry * value = getEntry(st, add->variable->value);
+	automata * rightOperand = (automata*) rightOperandEntry->value;
+	automata * newDfa = calloc(1, sizeof(automata));
+	// hacer copia de todo excepto delta
+	ArrayValue * aux = rightOperand->symbols;
+	int count = 0;
+	ArrayValue * newSym = copyArrayValue(aux,&count);
+	newDfa->symbols = newSym;
+	newDfa->symCount = count;
 
+	aux = rightOperand->finalStates;
+	count = 0;
+	ArrayValue * newFinalStates = copyArrayValue(aux,&count);
+	newDfa->finalStates = newFinalStates;
+
+	aux = rightOperand->states;
+	count = 0;
+	ArrayValue * newStates = copyArrayValue(aux,&count);
+	newDfa->states = newStates;
+	newDfa->staCount = count;
+
+	newDfa->startIdx = rightOperand->startIdx;
+	newDfa->currentStateIdx = newDfa->startIdx;
+
+	TrnArrayValue * trnAux = rightOperand->transitions;
+	newDfa->transitions = copyTrnArrayValue(trnAux);
+
+	if (add->leftOperand->type == VAR_OR_STRING_TVOST) // si hay una variable/string la agrego
+	{
+		if (add->leftOperand->varOrString->type == VAR_VOST)
+		{
+			if (!exists(st, add->leftOperand->varOrString->variable->value, STATE_DT) && !exists(st, add->leftOperand->varOrString->variable->value, TRANSITION_DT))
+			{
+				LogDebug("No existe la leftOperand\n ");
+				return -1;
+			}
+			else
+			{
+				entry * new = getEntry(st, add->leftOperand->varOrString->variable->value);
+				if (new->dataType == STATE_DT)
+				{
+					AddArrayValue(&newDfa->states, (char*)newStates->value);
+					newDfa->staCount++;
+				}
+				else if (new->dataType == TRANSITION_DT)
+				{	
+					AddTransitionArrayValue(&newDfa->transitions, (TransitionValue*) new->value);
+				}
+			}
+		}
+		else
+		{
+			AddArrayValue(&newDfa->states, add->leftOperand->varOrString->string->value);
+			newDfa->staCount++;
+		}
+	}
+	else if(add->leftOperand->type == TRANSITION_TVOST) // si hay una trn nueva la agrego
+	{
+		TransitionValue *auxTrn = malloc(sizeof(TransitionValue));
+
+		auxTrn->stateFrom = getTransitionParam(add->leftOperand->transition->stateFrom, STATE_DT);
+		if (auxTrn->stateFrom == NULL)
+			return -1;
+
+		auxTrn->stateTo = getTransitionParam(add->leftOperand->transition->stateTo, STATE_DT);
+		if (auxTrn->stateTo == NULL)
+			return -1;
+
+		auxTrn->symbol = getTransitionParam(add->leftOperand->transition->symbol, SYMBOL_DT);
+		if (auxTrn->symbol == NULL)
+			return -1;
+
+		AddTransitionArrayValue(&newDfa->transitions, auxTrn);
+	}
+	// genero delta 
+	newDfa->delta = malloc(newDfa->staCount * sizeof(size_t*));
+	for (int i = 0; i < newDfa->staCount; i++)
+        newDfa->delta[i] = malloc(newDfa->symCount * sizeof(size_t));
+
+	for (int i = 0; i < newDfa->staCount; i++){
+		for (int j = 0; j < newDfa->symCount; j++) {
+			newDfa->delta[i][j] = newDfa->staCount;
+		}		
+	}	
+
+	TrnArrayValue * currentTrn = newDfa->transitions;
+	while (currentTrn != NULL) {
+
+		int idxStaFrom = getIndex(newDfa->states, currentTrn->value->stateFrom);
+
+		int idxStaTo = getIndex(newDfa->states, currentTrn->value->stateTo);
+
+		int idxSym = getIndex(newDfa->symbols, currentTrn->value->symbol);
+
+		if (newDfa->staCount==idxStaFrom || newDfa->staCount==idxStaTo || newDfa->symCount==idxSym)
+		{
+			LogDebug("No es psible en este automata la trn");
+			return -1;
+		}
+		
+		if (newDfa->delta[idxStaFrom][idxSym] == newDfa->staCount){
+			newDfa->delta[idxStaFrom][idxSym] = idxStaTo;
+		}
+		else {
+			return -1;
+		}
+		currentTrn = currentTrn->next;
+	}
 	
-	
-	return 0;
+	return setValue(st,value->variableName,newDfa);
 }
 
 int RemoveCode(Rem * rem){
