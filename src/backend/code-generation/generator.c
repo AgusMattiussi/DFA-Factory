@@ -22,7 +22,6 @@ int Generator(Program * program, symbolTable * symbolTable) {
 	int toReturn = 0;
 	DecOrExec * current = program->decOrExec;
 	while(current != NULL && toReturn == 0){
-		LogDebug(" En el while\n");
 		toReturn = DecOrExecCode(current);
 		current = current->next;
 	}
@@ -101,6 +100,18 @@ static bool validateDfaVariables(DfaValue *dfaValue)
  * 
 **/
 
+static int getIndex(ArrayValue * first, char * value){
+	int index = 0;
+	ArrayValue * aux = first;
+	while(aux != NULL) {
+		if(strcmp(aux->value, value) == 0){
+			return index;
+		}
+		index++;
+		aux = aux->next;
+	}
+	return index;
+}
 
 // TODO: LIBERAR TODO!!!!!!!
 // TODO: Despues de los CHECKS resetear valores del DFA
@@ -128,9 +139,10 @@ int DfaValueCode(Variable * variable, DfaValue * dfaValue){
 	}
 
 	ArrayValue * currState = this->states;
+	entry * initial = getEntry(st, dfaValue->initial->value);
 	while (currState != NULL){
 		/* Indice del estado inicial*/
-		if(strcmp(currState->value, dfaValue->initial->value)){
+		if(strcmp(currState->value, (char *) initial->value)){
 			this->currentStateIdx = this->staCount;
 		}
 		this->staCount++;
@@ -139,13 +151,38 @@ int DfaValueCode(Variable * variable, DfaValue * dfaValue){
 	/* Siempre empieza en el estado inicial */
 	this->currentStateIdx = this->startIdx;
 
-	this->delta = malloc(this->staCount * this->symCount * sizeof(size_t));
+	this->delta = malloc(this->staCount * sizeof(size_t*));
+	for (int i = 0; i < this->staCount; i++)
+        this->delta[i] = malloc(this->symCount * sizeof(size_t));
+
 	/* Usamos la cantidad de estados + 1 (un numero de estado inalcanzable) 
 		para saber si esta posicion del array "esta vacia" */
-	memset(this->delta, this->staCount + 1, this->staCount * this->symCount);
+	for (int i = 0; i < this->staCount; i++){
+		for (int j = 0; j < this->symCount; j++) {
+			this->delta[i][j] = this->staCount + 1;
+		}		
+	}
 	
+	TrnArrayValue * currentTrn = this->transitions;
 
-	return 0;
+	while (currentTrn != NULL) {
+		
+		int idxStaFrom = getIndex(this->states, currentTrn->value->stateFrom);
+
+		int idxStaTo = getIndex(this->states, currentTrn->value->stateTo);
+
+		int idxSym = getIndex(this->symbols, currentTrn->value->symbol);
+		
+		if (this->delta[idxStaFrom][idxSym] == this->staCount + 1){
+			this->delta[idxStaFrom][idxSym] = idxStaTo;
+		}
+		else {
+			return -1; //TODO: codigo error no es DFA
+		}
+		currentTrn = currentTrn->next;
+	}
+	
+	return setValue(st, variable->value, this);
 }
 
 
@@ -182,19 +219,23 @@ int TransitionCode(Variable * variable, Transition * trnValue){
 	return setValue(st, variable->value, value);
 }
 
-TrnArrayValue * AddTransitionArrayValue(TrnArrayValue * arr, TransitionValue * value) {
-	if (arr == NULL)
-	{
-		TrnArrayValue *aux = malloc(sizeof(TrnArrayValue));
-		aux->value = value;
-		aux->next = NULL;
-		return aux;
+static void AddTransitionArrayValue(TrnArrayValue ** head, TransitionValue * value) {
+	TrnArrayValue * newNode = malloc(sizeof(TrnArrayValue));
+	newNode->value = value;
+	newNode->next = NULL;
+	
+	if (*head == NULL) {
+		*head = newNode;
 	}
-	else
-	{
-		arr->next = AddTransitionArrayValue(arr->next, value);
+	else {
+		TrnArrayValue *lastNode = *head;
+
+        while(lastNode->next != NULL) {
+            lastNode = lastNode->next;
+        }
+
+        lastNode->next = newNode;
 	}
-	return arr;
 }
 
 int TrnArrayCode(Variable *variable, TrnArrValue *trnArrValue){
@@ -202,7 +243,6 @@ int TrnArrayCode(Variable *variable, TrnArrValue *trnArrValue){
 	TrnArrayValue * value = NULL;
 	TransitionArr *current = trnArrValue->transitionArr;
 	entry *entry;
-	TrnArrayValue *aux = value;
 	while (current != NULL)
 	{
 		if (current->transitionOrVar->type == VAR_TOVT)
@@ -212,7 +252,7 @@ int TrnArrayCode(Variable *variable, TrnArrValue *trnArrValue){
 				return -1;
 			}
 			entry = getEntry(st, current->transitionOrVar->variable->value);
-			aux = AddTransitionArrayValue(aux, (TransitionValue *)entry->value);
+			AddTransitionArrayValue(&value, (TransitionValue *)entry->value);
 		}
 		else
 		{
@@ -230,29 +270,33 @@ int TrnArrayCode(Variable *variable, TrnArrValue *trnArrValue){
 			if (auxTrn->symbol == NULL)
 				return -1;
 
-			aux = AddTransitionArrayValue(aux,auxTrn);
+			AddTransitionArrayValue(&value,auxTrn);
 		}
-		aux = aux->next;
 		current = current->next;
 	}
+
 	return setValue(st, variable->value, value);
 }
 
-static ArrayValue *AddArrayValue(ArrayValue *arr, char *value)
+static void AddArrayValue(ArrayValue ** head, char *value)
 {
-	if (arr == NULL)
-	{
-		ArrayValue *aux = malloc(sizeof(ArrayValue));
-		aux->value = calloc(strlen(value), sizeof(char));
-		strcpy(aux->value, value);
-		aux->next = NULL;
-		return aux;
+	ArrayValue * newNode = malloc(sizeof(ArrayValue));
+	newNode->value = calloc(strlen(value)+1, sizeof(char));
+	strcpy(newNode->value, value);
+	newNode->next = NULL;
+	
+	if (*head == NULL) {
+		*head = newNode;
 	}
-	else
-	{
-		arr->next = AddArrayValue(arr->next, value);
+	else {
+		ArrayValue *lastNode = *head;
+
+        while(lastNode->next != NULL) {
+            lastNode = lastNode->next;
+        }
+
+        lastNode->next = newNode;
 	}
-	return arr;
 }
 
 int SymStaArrayCode(Variable * variable, SymOrStaArr * symOrStaArr, SymOrStaArrValue * symOrStaArrValue) {
@@ -260,36 +304,31 @@ int SymStaArrayCode(Variable * variable, SymOrStaArr * symOrStaArr, SymOrStaArrV
 	ArrayValue * value = NULL;
 	Array * current = symOrStaArrValue->array;
 	entry * entry;
-	ArrayValue * aux = value;
 	while (current != NULL)
 	{
-		if (current->VarOrString->type == VAR_VOST)
-		{
-			if (symOrStaArr->symOrState->type == SYM_SOST)
-			{
-				if (!exists(st, current->VarOrString->variable->value, SYMBOL_DT))
-				{
+		if (current->VarOrString->type == VAR_VOST) {
+			if (symOrStaArr->symOrState->type == SYM_SOST) {
+				if (!exists(st, current->VarOrString->variable->value, SYMBOL_DT)) {
 					return -1;
 				}
 			}
-			else
-			{
-				if (!exists(st, current->VarOrString->variable->value, STATE_DT))
-				{
+			else {
+				if (!exists(st, current->VarOrString->variable->value, STATE_DT)){
 					return -1;
 				}
 			}
-			entry = getEntry(st,current->VarOrString->variable->value);
-			aux = AddArrayValue(aux, (char *)entry->value );
+
+			entry = getEntry(st, current->VarOrString->variable->value);
+
+			AddArrayValue(&value, (char *)entry->value);
 		}
-		else
-		{
-			aux = AddArrayValue(aux, current->VarOrString->string->value);
+		else {
+			AddArrayValue(&value, current->VarOrString->string->value);
 		}
-		aux = aux->next;
 		current = current->next;
-	}	
-	return setValue(st,variable->value,value);
+	}
+		
+	return setValue(st, variable->value, value);
 }
 
 int SymStaCode(Variable * variable, SymOrState * symOrSta, String * symOrStaValue) {
