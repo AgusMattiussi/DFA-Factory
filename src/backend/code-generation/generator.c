@@ -15,12 +15,12 @@ int Generator(Program * program, symbolTable * symbolTable) {
 		toReturn = DecOrExecCode(current);
 		current = current->next;
 	}
-	LogDebug("%d\n", toReturn);
+	LogDebug("%d", toReturn);
 	return toReturn;
 }
 
 int DecOrExecCode(DecOrExec * decOrExec){
-	LogDebug("DecOrExecCode\n");
+	LogDebug("DecOrExecCode");
 	if(decOrExec->type == DEC_DOET)
 		return DecCode(decOrExec->declaration);
 	else	// type == EXEC_DOET
@@ -29,7 +29,7 @@ int DecOrExecCode(DecOrExec * decOrExec){
 
 
 int DecCode(Declaration * dec){
-	LogDebug("DecCode\n");
+	LogDebug("DecCode");
 	switch (dec->type){
 		case DFA_DVT:
 			return DfaValueCode(dec->variable, dec->dfa);
@@ -106,7 +106,7 @@ static int getIndex(ArrayValue * first, char * value){
 // TODO: LIBERAR TODO!!!!!!!
 // TODO: Despues de los CHECKS resetear valores del DFA
 int DfaValueCode(Variable * variable, DfaValue * dfaValue) {
-	LogDebug("DfaValueCode\n");
+	LogDebug("DfaValueCode");
 	if (!validateDfaVariables(dfaValue)) {
 		return -1;
 	}
@@ -177,14 +177,6 @@ int DfaValueCode(Variable * variable, DfaValue * dfaValue) {
 		}
 		currentTrn = currentTrn->next;
 	}
-
-	printf("Original:\n");
-	for(int i=0; i < this->staCount; i++) {
-        for(int j=0; j < this->symCount; j++) {
-            printf(" %zd ", this->delta[i][j]);
-        }
-		printf("\n");
-    }
 	
 	return setValue(st, variable->value, this);
 }
@@ -205,7 +197,7 @@ static char * getTransitionParam(VarOrString * vos, DataType type) {
 }
 
 int TransitionCode(Variable * variable, Transition * trnValue) {
-	LogDebug("TransitionCode\n");
+	LogDebug("TransitionCode");
 	TransitionValue * value = malloc(sizeof(TransitionValue));
 
 	value->stateFrom = getTransitionParam(trnValue->stateFrom, STATE_DT);
@@ -242,7 +234,7 @@ static void AddTransitionArrayValue(TrnArrayValue ** head, TransitionValue * val
 }
 
 int TrnArrayCode(Variable *variable, TrnArrValue *trnArrValue) {
-	LogDebug("TrnArrayCode\n");
+	LogDebug("TrnArrayCode");
 	TrnArrayValue * value = NULL;
 	TransitionArr *current = trnArrValue->transitionArr;
 	entry *entry;
@@ -302,7 +294,7 @@ static void AddArrayValue(ArrayValue ** head, char *value) {
 }
 
 int SymStaArrayCode(Variable * variable, SymOrStaArr * symOrStaArr, SymOrStaArrValue * symOrStaArrValue) {
-	LogDebug("SymStaArrayCode\n");
+	LogDebug("SymStaArrayCode");
 	ArrayValue * value = NULL;
 	Array * current = symOrStaArrValue->array;
 	entry * entry;
@@ -334,7 +326,7 @@ int SymStaArrayCode(Variable * variable, SymOrStaArr * symOrStaArr, SymOrStaArrV
 }
 
 int SymStaCode(Variable * variable, SymOrState * symOrSta, String * symOrStaValue) {
-	LogDebug("SymStaCode\n");
+	LogDebug("SymStaCode");
 	return setValue(st, variable->value, symOrStaValue->value);
 }
 
@@ -359,6 +351,7 @@ int ExecCode(Exec * exec) {
 
 //TODO: Considerar el -f
 int PrintCode(Print * toPrint){
+	LogDebug("PrintCode");
 	fprintf(stdout, "# %s\n", toPrint->string->value);
 	return 0;
 }
@@ -391,7 +384,7 @@ static printCheckOutput(char * dfaName, ArrayValue * word, bool result){
 }
 
 int CheckCode(Check * check){
-	LogDebug("CheckCode\n");
+	LogDebug("CheckCode");
 	
 	if (!exists(st, check->variable->value, DFA_DT)){
 		LogDebug("El DFA no existe");
@@ -423,7 +416,6 @@ int CheckCode(Check * check){
 	
 	ArrayValue * current = word;
 	int symIdx = 0;
-	LogDebug("Por entrar al while");
 	// TODO: Responsabilidad de automata.c?
 	while (current != NULL){
 		symIdx = getIndex(myAuto->symbols, current->value);
@@ -466,8 +458,7 @@ int CheckCode(Check * check){
 static ArrayValue * copyArrayValue(ArrayValue * old, int * count) {
 	ArrayValue * aux = old;
 	ArrayValue * new = NULL;
-	while (aux != NULL)
-	{
+	while (aux != NULL) {
 		AddArrayValue(&new,aux->value);
 		aux = aux->next;
 		(*count)++;
@@ -487,7 +478,7 @@ static TrnArrayValue * copyTrnArrayValue(TrnArrayValue * old) {
 }
 
 int AddCode(Add * add){
-	LogDebug("AddCode\n");
+	LogDebug("AddCode");
 	if (!exists(st, add->rightOperand->value, DFA_DT))
 	{
 		LogDebug("rightOperand no existe\n");
@@ -532,7 +523,7 @@ int AddCode(Add * add){
 		{
 			if (!exists(st, add->leftOperand->varOrString->variable->value, STATE_DT) && !exists(st, add->leftOperand->varOrString->variable->value, TRANSITION_DT))
 			{
-				LogDebug("No existe la leftOperand\n ");
+				LogDebug("No existe la leftOperand");
 				return -1;
 			}
 			else
@@ -612,7 +603,6 @@ int AddCode(Add * add){
 }
 
 static int remFromList(automata * myAuto, ArrayValue * list, char * state) {
-	LogDebug("remFromList");
     ArrayValue * current = list;
     if(strcmp(current->value, state) == 0) { //remuevo el primero
         myAuto->states = NULL;
