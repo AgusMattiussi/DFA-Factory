@@ -137,8 +137,6 @@ trnArr: transitionOrVar[trnOrVar] COMMA trnArr[next] 												{ $$ = TrnArrWi
 
 dfaValue: OPEN_CURLY VARIABLE[states] COMMA VARIABLE[symbols] COMMA VARIABLE[startState] COMMA VARIABLE[endStates] COMMA VARIABLE[trns] CLOSE_CURLY		{ $$ = DfaValueGrammarAction($states, $symbols, $startState, $endStates, $trns); }
 	;
-// {estados, simbolos, estado inicial, finales, transiciones}
-
 
 /* ==== Prestaciones ==== */
 
