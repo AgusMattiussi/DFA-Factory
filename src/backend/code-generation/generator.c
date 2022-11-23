@@ -612,8 +612,40 @@ int RemoveCode(Rem * rem){
 	return 0;
 }
 
-int ComplementCode(Complement * complement){
-	return 0;
+static bool isFinal(char * state, ArrayValue * finalStates){
+	ArrayValue * aux = finalStates;
+	while(aux != NULL){
+		if(strcmp(state, aux->value))
+			return true;
+		aux = aux->next;
+	}
+	return false;
+}
+
+int ComplementCode(Complement * complement) {
+	if(!exists(st, complement->notVariable->value, DFA_DT))
+		return -1;
+
+	if (!exists(st, complement->variable->value, DFA_DT))
+		addEntry(st, complement->variable->value, DFA_DT);
+	
+	entry * entry = getEntry(st, complement->notVariable->value);
+	automata * originalDfa = (automata *) entry->value;
+	ArrayValue * originalFinalStates = originalDfa->finalStates;
+	ArrayValue * newFinalStates = NULL;
+
+	ArrayValue * current = originalDfa->states;
+
+	while(current != NULL){
+		if(!isFinal(current->value, originalFinalStates)){
+			AddArrayValue(&newFinalStates, current->value);
+		}
+		current = current->next;
+	}
+
+	originalDfa->finalStates = newFinalStates;
+
+	return setValue(st, complement->variable->value, originalDfa);
 }
 
 int JoinCode(Join * join){
