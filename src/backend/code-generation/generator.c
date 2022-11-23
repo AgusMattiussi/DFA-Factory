@@ -7,16 +7,6 @@
  */
 static symbolTable * st;
 
-/* typedef enum DataType {
-    DFA_DT,
-    TRANSITION_DT,
-    STATE_DT,
-    SYMBOL_DT,
-    SYM_ARRAY_DT,
-    STATE_ARRAY_DT,
-    TRN_ARRAY_DT
-} DataType; */
-
 int Generator(Program * program, symbolTable * symbolTable) {
 	st = symbolTable;
 	int toReturn = 0;
@@ -58,11 +48,10 @@ int DecCode(Declaration * dec){
 			break;
 	}
 
-	return 0;
+	return -1;
 }
 
-static bool validateDfaVariables(DfaValue *dfaValue)
-{
+static bool validateDfaVariables(DfaValue *dfaValue) {
 	if (!exists(st, dfaValue->initial->value, STATE_DT))
 	{
 		LogDebug("%s no es un state",  dfaValue->initial->value);
@@ -121,7 +110,7 @@ int DfaValueCode(Variable * variable, DfaValue * dfaValue){
 		return -1;
 	}
 
-	/* Inicializa variables en 0*/
+	/* Inicializa variables en 0 */
 	automata * this = calloc(1, sizeof(automata)); 
 
 	/* Inicializamos las variables */
@@ -143,7 +132,7 @@ int DfaValueCode(Variable * variable, DfaValue * dfaValue){
 	while (currState != NULL){
 		/* Indice del estado inicial*/
 		if(strcmp(currState->value, (char *) initial->value)){
-			this->currentStateIdx = this->staCount;
+			this->startIdx = this->staCount;
 		}
 		this->staCount++;
 		currState = currState->next;
@@ -336,6 +325,48 @@ int SymStaCode(Variable * variable, SymOrState * symOrSta, String * symOrStaValu
 	return setValue(st, variable->value, symOrStaValue->value);
 }
 
+
 int ExecCode(Exec * exec) {
+	switch (exec->type) {
+		case ADD_EVT:
+			return AddCode(exec->add);
+		case REM_EVT:
+			return RemoveCode(exec->rem);
+		case CHECK_EVT:
+			return CheckCode(exec->check);
+		case COMPLEMENT_EVT:
+			return ComplementCode(exec->complement);
+		case JOIN_EVT:
+			return JoinCode(exec->join);
+		case PRINT_EVT:
+			return PrintCode(exec->print);
+	}
+
+	return -1;
+}
+
+//TODO: Considerar el -f
+int PrintCode(Print * toPrint){
+	fprintf(stdout, "# %s\n", toPrint->string->value);
+	return 0;
+}
+
+int AddCode(Add * add){
+	return 0;
+}
+
+int RemoveCode(Rem * rem){
+	return 0;
+}
+
+int CheckCode(Check * check){
+	return 0;
+}
+
+int ComplementCode(Complement * complement){
+	return 0;
+}
+
+int JoinCode(Join * join){
 	return 0;
 }

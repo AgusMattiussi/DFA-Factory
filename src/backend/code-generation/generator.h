@@ -13,5 +13,12 @@ int TrnArrayCode(Variable * variable, TrnArrValue * trnArrValue);
 int SymStaArrayCode(Variable * variable, SymOrStaArr * symOrStaAr, SymOrStaArrValue * symOrStaArrValue);
 int SymStaCode(Variable * variable, SymOrState * symOrSta, String * symOrStaValue);
 int ExecCode(Exec * exec);
+int AddCode(Add * add);
+int RemoveCode(Rem * rem);
+int CheckCode(Check * check);
+int ComplementCode(Complement * complement);
+int JoinCode(Join * join);
+int PrintCode(Print * toPrint);
+
 
 #endif

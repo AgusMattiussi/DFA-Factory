@@ -22,6 +22,7 @@ endline			[\n]
 whitespace		[ \f\n\r\t\v]
 /* TODO: Ser mas permisivo con los caracteres para simbolos y estados */
 alphanumeric    [a-zA-Z0-9_]
+string          [a-zA-Z0-9_ \f\n\r\t\v]
 CHECK           "CHECK"
 ADD             "ADD"
 TO              "TO"
@@ -87,7 +88,7 @@ dfa             "dfa"
 
 {dfa}                                       { return DFAPatternAction(yytext); }
 
-\"{alphanumeric}+\"                         { return StringPatternAction(yytext, yyleng); } 
+\"{string}+\"                         { return StringPatternAction(yytext, yyleng); } 
 
 {alphanumeric}+                             { return VariablePatternAction(yytext, yyleng); }            
 
