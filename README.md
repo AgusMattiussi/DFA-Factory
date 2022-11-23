@@ -1,8 +1,6 @@
-[![✗](https://img.shields.io/badge/Release-v0.2.0-ffb600.svg?style=for-the-badge)](https://github.com/agustin-golmar/Flex-Bison-Compiler/releases)
+# DFA-Factory
 
-# Compilador Flex/Bison
-
-Un compilador vacío de ejemplo construido con Flex y Bison.
+Un compilador capaz de construir y manipular autómatas finitos determinísticos y evaluar la aceptación de palabras en los lenguajes de los mismos.
 
 ## Requerimientos
 
@@ -38,7 +36,29 @@ Luego se deberá abrir la solución generada `bin\Compiler.sln` con el IDE _Micr
 Para compilar un programa, primero cree un archivo vacío denominado `program` (o el nombre que desee), con el siguiente contenido:
 
 ```
-123123 + 123 - 2 * (454 + 890 / 89)
+/* Declaramos las variables */
+sta inicial = "q0";
+sta final = "qf";
+sta[] states = {inicial, final};
+sta[] finalStates = {final};
+sym nums = "123456789";
+sym[] symbols = {"a", "bb", nums};
+trn[] transitions = {
+					{inicial, final, "a"},
+					{final, inicial, nums},
+					{final, final, "bb"}
+};
+
+/* Declaramos el automata */
+dfa myAuto = {
+        states,
+        symbols,
+        inicial,
+        finalStates,
+		transitions
+};
+
+myAuto CHECK {"a", "bb", "bb", "bb"};
 ```
 
 Luego, ejecute el compilador desde el directorio raíz del proyecto, o desde cualquier otro lugar indicando el path hacia el script `start.sh` y pasando por parámetro el path hacia el programa a compilar:
@@ -53,7 +73,7 @@ En Windows:
 user@machine:path/ $ script\start.bat program
 ```
 
-Debería obtener el resultado correcto de evaluar el programa anterior: `122318`.
+El resultado del programa anterior creado debería ser: `myAuto-{"a", "bb", "bb", "bb"}:true`. Lo que significa que el automata reconoce la palabra ingresada.
 
 ## Testing
 
@@ -70,3 +90,13 @@ user@machine:path/ $ script\test.bat
 ```
 
 Si desea agregar nuevos casos de uso, deberá crear un archivo por cada uno, que contenga el programa a testear dentro de las carpetas `test/accept` o `test/reject` según corresponda (es decir, si el mismo debe ser aceptado o rechazado por el compilador).
+
+## Integrantes
+
+Nombre | Legajo
+-------|--------
+[Arnott, Ian](https://github.com/Ian-Arnott) | 61267
+[De Simone, Franco](https://github.com/desimonef) | 61100
+[Mattiussi, Agustín Hernán](https://github.com/AgusMattiussi) | 61361
+[Sasso, Julián Martín](https://github.com/JulianSasso) | 61535
+
