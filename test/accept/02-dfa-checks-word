@@ -20,4 +20,5 @@ dfa myAuto = {
 				transitions
 };
 
+PRINT "Esta palabra pertenece al lenguaje";
 myAuto CHECK {"a", "bb", "bb", "bb"};
