@@ -477,18 +477,52 @@ static TrnArrayValue * copyTrnArrayValue(TrnArrayValue * old) {
 	return new;
 }
 
+static void freeArrayValue(ArrayValue * array) {
+	if (array == NULL)
+		return;
+	freeArrayValue(array->next);
+	free(array->value);
+	free(array);
+}
+
+static void freeTrnArrayValue(TrnArrayValue * array) {
+	if (array == NULL)
+		return;
+	freeTrnArrayValue(array->next);
+	// free(array->value->stateFrom);
+	// LogDebug("Freed stateFrom");
+	// free(array->value->stateTo);
+	// LogDebug("Freed stateTo");
+	// free(array->value->symbol);
+	// LogDebug("Freed symbol");
+	// free(array->value);
+	// LogDebug("Freed value");
+	free(array);
+}
+
+
+static void freeAutomata(automata * toFree) {
+	freeArrayValue(toFree->states);
+	freeArrayValue(toFree->symbols);
+	freeArrayValue(toFree->finalStates);
+	freeTrnArrayValue(toFree->transitions);
+	for (size_t i = 0; i < toFree->staCount; i++)
+		free(toFree->delta[i]);
+	free(toFree->delta);
+	free(toFree);
+}
+
 int AddCode(Add * add){
 	LogDebug("AddCode");
 	if (!exists(st, add->rightOperand->value, DFA_DT))
 	{
-		LogDebug("rightOperand no existe\n");
 		return -1;
 	}
 	entry * rightOperandEntry = getEntry(st, add->rightOperand->value);
-	if (!exists(st, add->variable->value, DFA_DT))
+	int freeRightOperand = 1;
+	if (strcmp(add->variable->value,add->rightOperand->value) != 0)
 	{
-		LogDebug("variable no existe, la creo\n");
-		addEntry(st, add->variable->value, DFA_DT);
+		freeRightOperand = 0;
 	}
 	entry * value = getEntry(st, add->variable->value);
 	automata * rightOperand = (automata*) rightOperandEntry->value;
@@ -598,7 +632,13 @@ int AddCode(Add * add){
 		}
 		currentTrn = currentTrn->next;
 	}
+
+	if (freeRightOperand)
+	{
+		freeAutomata(rightOperand);
+	}
 	
+
 	return setValue(st,value->variableName,newDfa);
 }
 
