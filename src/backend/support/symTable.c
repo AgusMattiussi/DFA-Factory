@@ -37,6 +37,11 @@ static entry * addRec(entry * first, char * variableName, DataType type, int * f
 
 int addEntry(symbolTable * st, char * variableName, DataType type) {
     int added = 0;
+    if (exists(st,variableName,type))
+    {
+        return -1;
+    }
+    
     st->first = addRec(st->first, variableName, type, &added);
     st->size += added;
     return added;
