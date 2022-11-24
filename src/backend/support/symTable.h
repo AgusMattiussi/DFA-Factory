@@ -49,6 +49,7 @@ typedef struct automata {
 	ArrayValue * symbols;
 	ArrayValue * states;
 	ArrayValue * finalStates;
+	char * initial;
 	TrnArrayValue * transitions;
 	size_t startIdx;
 	size_t currentStateIdx;

@@ -1,5 +1,7 @@
 #include "symTable.h"
 
+//TODO: Limpiar mallocs despues de ejecutar
+
 symbolTable * initSymbolTable(){
     return calloc(1, sizeof(symbolTable));
 }

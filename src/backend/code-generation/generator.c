@@ -103,6 +103,74 @@ static int getIndex(ArrayValue * first, char * value){
 	return index;
 }
 
+//TODO: Liberar cosas si algo sale mal
+static automata * 
+createAutomata(ArrayValue * symbols, ArrayValue * states, ArrayValue * finalStates, TrnArrayValue * transitions, char * initial){
+	/* Inicializa variables en 0 */
+	automata * this = calloc(1, sizeof(automata));
+
+	LogDebug("Asignando valores");
+	this->symbols = symbols;
+	this->states = states;
+	this->finalStates = finalStates;
+	this->initial = initial;
+	this->transitions = transitions;
+	
+	LogDebug("Contando symbols");
+	ArrayValue * currSym = this->symbols;
+	while (currSym != NULL){
+		this->symCount++;
+		currSym = currSym->next;
+	}
+
+	LogDebug("Contando estados");
+	ArrayValue * currState = this->states;
+	while (currState != NULL){
+		/* Indice del estado inicial*/
+		if(strcmp(currState->value, initial) == 0){
+			this->startIdx = this->staCount;
+		}
+		this->staCount++;
+		currState = currState->next;
+	}
+
+	/* Siempre empieza en el estado inicial */
+	this->currentStateIdx = this->startIdx;
+
+	this->delta = malloc(this->staCount * sizeof(size_t*));
+	LogDebug("Creando delta");
+	for (int i = 0; i < this->staCount; i++)
+        this->delta[i] = malloc(this->symCount * sizeof(size_t));
+
+	/* Usamos la cantidad de estados (un numero de estado inalcanzable,
+		"estado trampa") para saber si esta posicion del array "esta vacia" */
+	for (int i = 0; i < this->staCount; i++){
+		for (int j = 0; j < this->symCount; j++) {
+			this->delta[i][j] = this->staCount;
+		}		
+	}
+	
+	TrnArrayValue * currentTrn = this->transitions;
+	LogDebug("Agregando transiciones");
+	while (currentTrn != NULL) {
+		LogDebug("Agregando (%s) --%s--> (%s)", currentTrn->value->stateFrom, currentTrn->value->symbol, currentTrn->value->stateTo);
+		int idxStaFrom = getIndex(this->states, currentTrn->value->stateFrom);
+		int idxStaTo = getIndex(this->states, currentTrn->value->stateTo);
+		int idxSym = getIndex(this->symbols, currentTrn->value->symbol);
+		
+		if (this->delta[idxStaFrom][idxSym] == this->staCount){
+			this->delta[idxStaFrom][idxSym] = idxStaTo;
+		}
+		else {
+			LogDebug("Error: No es DFA");
+			return NULL; //TODO: codigo error no es DFA
+		}
+		currentTrn = currentTrn->next;
+	}
+	LogDebug("Retornando");
+	return this;
+}
+
 // TODO: LIBERAR TODO!!!!!!!
 // TODO: Despues de los CHECKS resetear valores del DFA
 int DfaValueCode(Variable * variable, DfaValue * dfaValue) {
@@ -111,74 +179,23 @@ int DfaValueCode(Variable * variable, DfaValue * dfaValue) {
 		return -1;
 	}
 
-	/* Inicializa variables en 0 */
-	automata * this = calloc(1, sizeof(automata)); 
-
-	/* Inicializamos las variables */
 	entry * symbolsEntry = getEntry(st, dfaValue->symbols->value);
-	this->symbols = (ArrayValue *) symbolsEntry->value;
-
 	entry * statesEntry = getEntry(st, dfaValue->states->value);
-	this->states = (ArrayValue *) statesEntry->value;
-
 	entry * finalStatesEntry = getEntry(st, dfaValue->finalStates->value);
-	this->finalStates = (ArrayValue *) finalStatesEntry->value;
-	
 	entry * transitionsEntry = getEntry(st, dfaValue->transitions->value);
-	this->transitions = (TrnArrayValue *) transitionsEntry->value;
-
-	ArrayValue * currSym = this->symbols;
-	while (currSym != NULL){
-		this->symCount++;
-		currSym = currSym->next;
-	}
-
-	ArrayValue * currState = this->states;
-	entry * initial = getEntry(st, dfaValue->initial->value);
-	while (currState != NULL){
-		/* Indice del estado inicial*/
-		if(strcmp(currState->value, (char *) initial->value) == 0){
-			this->startIdx = this->staCount;
-		}
-		this->staCount++;
-		currState = currState->next;
-	}
+	entry * initialEntry = getEntry(st, dfaValue->initial->value);
 	
-	/* Siempre empieza en el estado inicial */
-	this->currentStateIdx = this->startIdx;
-
-	this->delta = malloc(this->staCount * sizeof(size_t*));
-	for (int i = 0; i < this->staCount; i++)
-        this->delta[i] = malloc(this->symCount * sizeof(size_t));
-
-	/* Usamos la cantidad de estados + 1 (un numero de estado inalcanzable) 
-		para saber si esta posicion del array "esta vacia" */
-	for (int i = 0; i < this->staCount; i++){
-		for (int j = 0; j < this->symCount; j++) {
-			this->delta[i][j] = this->staCount;
-		}		
-	}
+	automata * new = createAutomata(
+		(ArrayValue *) symbolsEntry->value,
+		(ArrayValue *) statesEntry->value,
+		(ArrayValue *) finalStatesEntry->value,
+		(TrnArrayValue *) transitionsEntry->value,
+		(char * ) initialEntry->value
+	);
+	if(new == NULL)
+		return -1;
 	
-	TrnArrayValue * currentTrn = this->transitions;
-
-	while (currentTrn != NULL) {
-		
-		int idxStaFrom = getIndex(this->states, currentTrn->value->stateFrom);
-
-		int idxStaTo = getIndex(this->states, currentTrn->value->stateTo);
-
-		int idxSym = getIndex(this->symbols, currentTrn->value->symbol);
-		
-		if (this->delta[idxStaFrom][idxSym] == this->staCount){
-			this->delta[idxStaFrom][idxSym] = idxStaTo;
-		}
-		else {
-			return -1; //TODO: codigo error no es DFA
-		}
-		currentTrn = currentTrn->next;
-	}
-	
-	return setValue(st, variable->value, this);
+	return setValue(st, variable->value, new);
 }
 
 
@@ -274,6 +291,55 @@ int TrnArrayCode(Variable *variable, TrnArrValue *trnArrValue) {
 	return setValue(st, variable->value, value);
 }
 
+static int noDupAddArrayValue(ArrayValue ** head, char *value) {
+	ArrayValue * newNode = malloc(sizeof(ArrayValue));
+	newNode->value = calloc(strlen(value)+1, sizeof(char));
+	strcpy(newNode->value, value);
+	newNode->next = NULL;
+	
+	if (*head == NULL) {
+		*head = newNode;
+	}
+	else {
+		ArrayValue *lastNode = *head;
+
+        while(lastNode->next != NULL) {
+			if(strcmp(lastNode->value, value) == 0){
+				free(newNode);
+				return -1;
+			}
+            lastNode = lastNode->next;
+        }
+
+        lastNode->next = newNode;
+	}
+	return 0;
+}
+
+static void ignoreDupAddArrayValue(ArrayValue ** head, char *value) {
+	ArrayValue * newNode = malloc(sizeof(ArrayValue));
+	newNode->value = calloc(strlen(value)+1, sizeof(char));
+	strcpy(newNode->value, value);
+	newNode->next = NULL;
+	
+	if (*head == NULL) {
+		*head = newNode;
+	}
+	else {
+		ArrayValue *lastNode = *head;
+
+        while(lastNode->next != NULL) {
+			if(strcmp(lastNode->value, value) == 0){
+				free(newNode);
+				return;
+			}
+            lastNode = lastNode->next;
+        }
+
+        lastNode->next = newNode;
+	}
+}
+
 static void AddArrayValue(ArrayValue ** head, char *value) {
 	ArrayValue * newNode = malloc(sizeof(ArrayValue));
 	newNode->value = calloc(strlen(value)+1, sizeof(char));
@@ -362,6 +428,7 @@ int PrintCode(Print * toPrint){
 } */
 
 static bool isInFinalState(automata * automata){
+	LogDebug("isInFinalState");
 	ArrayValue * final = automata->finalStates;
 
 	//TODO: Modularizar
@@ -371,6 +438,7 @@ static bool isInFinalState(automata * automata){
 	while (final != NULL){
 		if(strcmp(final->value, current->value) == 0)
 			return true;
+		final = final->next;
 	}
 	return false;
 }
@@ -424,8 +492,9 @@ int CheckCode(Check * check){
 	LogDebug("Por entrar al while");
 	// TODO: Responsabilidad de automata.c?
 	while (current != NULL){
+		LogDebug("LLegue 1");
 		symIdx = getIndex(myAuto->symbols, current->value);
-		
+		LogDebug("LLegue 2");
 		//printf("De %zd a ", myAuto->currentStateIdx);
 
 		// No existe la transicion delta[estado][simbolo]
@@ -434,7 +503,7 @@ int CheckCode(Check * check){
 			LogDebug("No hay transicion del estado %d con %s", myAuto->currentStateIdx, current->value);
 			break;
 		}
-		
+		LogDebug("LLegue 3");
 		//LogDebug("El idx del simbolo es %d", symIdx);
 		//LogDebug("currentStateIdx: %zd", myAuto->currentStateIdx);
 		// El simbolo no existe en el automata
@@ -443,21 +512,26 @@ int CheckCode(Check * check){
 			LogDebug("El simbolo %s no esta en el automata", current->value);
 			break;
 		}
+		LogDebug("LLegue 4");
 
-		
+		LogDebug("(%zd) --%s(idx:%zd)--> (%zd)", myAuto->currentStateIdx, current->value, symIdx, myAuto->delta[myAuto->currentStateIdx][symIdx]);
+		LogDebug("LLegue 5");
 		myAuto->currentStateIdx = myAuto->delta[myAuto->currentStateIdx][symIdx];
+		LogDebug("LLegue 6");
 		//printf("%zd con %s\n", myAuto->currentStateIdx, current->value);
 		current = current->next;
+		LogDebug("LLegue 7");
 	}
+	LogDebug("Sali del while");
 	//TODO: Borrar
 	if(current != NULL){
 		LogDebug("Current no es null (no termino la palabra)");
 	} else if(!isInFinalState(myAuto)){
 		LogDebug("El automata no esta en estado final");
 	}
-	
+	LogDebug("Imprimiendo");
 	printCheckOutput(dfa->variableName, word,(current == NULL && isInFinalState(myAuto)));
-		
+	LogDebug("Impreso");
 	return 0;
 }
 
@@ -483,6 +557,212 @@ int ComplementCode(Complement * complement){
 	return 0;
 }
 
+
+//TODO: Unificar estas dos funciones con un bool
+static ArrayValue * joinSymbols(ArrayValue * s1, ArrayValue * s2) {
+	LogDebug("joinSymbols");
+	/* Creamos un nuevo array como copia de s1*/
+	ArrayValue * new = malloc(sizeof(ArrayValue));
+	memcpy(new, s1, sizeof(ArrayValue));
+
+	/* Copiamos los nodos de s2 */
+	ArrayValue * aux = s2;
+	while (aux != NULL){
+		/* Aceptamos simbolos duplicados */
+		ignoreDupAddArrayValue(&new, aux->value);
+		aux = aux->next;
+	}
+	
+	return new;
+}
+
+static ArrayValue * joinStates(ArrayValue * s1, ArrayValue * s2) {
+	LogDebug("joinStates");
+	/* Creamos un nuevo array como copia de s1*/
+	ArrayValue * new = malloc(sizeof(ArrayValue));
+	memcpy(new, s1, sizeof(ArrayValue));
+
+	/* Copiamos los nodos de s2 */
+	ArrayValue * aux = s2;
+	while (aux != NULL){
+		/* No aceptamos estados duplicados */
+		if(noDupAddArrayValue(&new, aux->value) < 0){
+			free(new);
+			return NULL;
+		}
+		aux = aux->next;
+	}
+	
+	return new;
+}
+
+static void freeTransitionValue(TransitionValue * toFree){
+	LogDebug("freeTransitionValue");
+	if(toFree == NULL)
+		return;
+	if(toFree->stateFrom != NULL)
+		free(toFree->stateFrom);
+	if(toFree->stateTo != NULL)
+		free(toFree->stateTo);
+	if(toFree->symbol != NULL)
+		free(toFree->symbol);
+	free(toFree);
+}
+
+static char * copyOfVOSName(VarOrString * vos){
+	LogDebug("copyOfVOSName");
+	char * ret;
+	char * aux;
+	if(vos->type == VAR_VOST){
+		entry * auxEntry = getEntry(st, vos->variable->value);
+		if(auxEntry == NULL)
+			return NULL;
+		aux = (char *) auxEntry->value;
+		if(aux == NULL){
+			return NULL;
+		}
+	} else {
+		aux = vos->string->value;
+	} 
+
+	ret = malloc(sizeof(strlen(aux)));
+	if(ret == NULL)
+		return NULL;
+
+	strcpy(ret, aux);
+	return ret;
+}
+
+static TransitionValue * trnValueFromTransition(Transition * transition){
+	LogDebug("trnValueFromTransition");
+	TransitionValue * new = calloc(1, sizeof(TransitionValue));
+	if(new == NULL)
+		return NULL;
+	
+	new->stateFrom = copyOfVOSName(transition->stateFrom);
+	new->stateTo = copyOfVOSName(transition->stateTo);
+	new->symbol = copyOfVOSName(transition->symbol);
+
+	if(new->stateFrom == NULL || new->stateTo == NULL || new->symbol == NULL){
+		free(new->stateFrom);
+		free(new->stateTo);
+		free(new->symbol);
+		free(new);
+		return NULL;
+	}
+
+	return new;	
+}
+
+static TransitionValue * copyOfTransitionValue(TransitionValue * src){
+	LogDebug("copyOfTransitionValue");
+	TransitionValue * ret = malloc(sizeof(TransitionValue));
+	if(ret == NULL)
+		return NULL;
+	
+	ret->stateFrom = malloc(strlen(src->stateFrom));
+	ret->stateTo = malloc(strlen(src->stateFrom));
+	ret->symbol = malloc(strlen(src->stateFrom));
+
+	if(ret->stateFrom == NULL || ret->stateTo == NULL || ret->symbol == NULL){
+		free(ret->stateFrom);
+		free(ret->stateTo);
+		free(ret->symbol);
+		free(ret);
+		return NULL;
+	}
+
+	strcpy(ret->stateFrom, src->stateFrom);
+	strcpy(ret->stateTo, src->stateTo);
+	strcpy(ret->symbol, src->symbol);
+
+	return ret;
+}
+
+static TrnArrayValue * joinTransitions(TrnArrayValue * ta1, TrnArrayValue * ta2, TransitionValue * newTv){
+	LogDebug("joinTransitions");
+	TrnArrayValue * new = malloc(sizeof(TrnArrayValue));
+	if(new == NULL)
+		return NULL;
+	TrnArrayValue * newAux = new;
+
+	/* Copiamos las transiciones de ta1 */
+	//TODO: Liberar todo en caso de NULL
+	TrnArrayValue * auxTa1 = ta1;
+	while (auxTa1 != NULL){
+		newAux->value = copyOfTransitionValue(auxTa1->value);
+		
+		newAux->next = malloc(sizeof(TrnArrayValue));
+		auxTa1 = auxTa1->next;
+		newAux = newAux->next;
+	}
+
+	/* Copiamos las transiciones de ta2 */
+	//TODO: Liberar todo en caso de NULL
+	TrnArrayValue * auxTa2 = ta2;
+	while (auxTa2 != NULL){
+		newAux->value = copyOfTransitionValue(auxTa2->value);
+		
+		newAux->next = malloc(sizeof(TrnArrayValue));
+		auxTa2 = auxTa2->next;
+		newAux = newAux->next;
+	}
+
+	/* Agregamos la nueva transicion */
+	newAux->value = newTv;
+	newAux->next = NULL;
+	return new;
+}
+
+//TODO: Liberar cosas en caso de error
 int JoinCode(Join * join){
-	return 0;
+	LogDebug("JoinCode");
+	//TODO: AddIfNotExists o algo asi
+	//TODO: Liberar value si ya existia
+	// TODO: Liberar cosas si algo falla
+	if(!exists(st, join->dfaVariable->value, DFA_DT)){
+		addEntry(st, join->dfaVariable->value, DFA_DT);
+	}
+	
+	//TODO: Tengo que revisar si existen?
+	entry * lAutoEntry = getEntry(st, join->leftOperand->value);
+	if(lAutoEntry == NULL)
+		return -1;
+	automata * lAuto = (automata *) lAutoEntry->value;
+	if(lAuto == NULL)
+		return -1;
+
+	entry * rAutoEntry = getEntry(st, join->rightOperand->value);
+	if(rAutoEntry == NULL)
+		return -1;
+	automata * rAuto = (automata *) rAutoEntry->value;
+	if(rAuto == NULL)
+		return -1;
+	
+	
+	ArrayValue * states = joinStates(lAuto->states, rAuto->states);
+	ArrayValue * symbols = joinSymbols(lAuto->symbols, rAuto->symbols);
+	ArrayValue * finalStates = joinStates(lAuto->finalStates, rAuto->finalStates);
+	
+	TransitionValue * newTransition;
+	if(join->transitionOrVar->type == VAR_TOVT){
+		entry * newTransitionEntry = getEntry(st, join->transitionOrVar->variable->value);
+		if(newTransitionEntry == NULL)
+			return -1;
+		newTransition = (TransitionValue *) newTransitionEntry->value;
+		if(newTransition == NULL)
+			return -1;
+	} else {
+		newTransition = trnValueFromTransition(join->transitionOrVar->transition);
+	}
+
+	TrnArrayValue * transitions = joinTransitions(lAuto->transitions, rAuto->transitions, newTransition);
+	
+	/* No hace falta copia, el estado inicial no es borrable */
+	char * initial = lAuto->initial;
+	automata * new = createAutomata(symbols, states, finalStates, transitions, initial);
+	if(new == NULL)
+		return -1;
+
+	return setValue(st, join->dfaVariable->value, new);
 }

@@ -9,7 +9,8 @@
         "stdio.h": "c",
         "calculator.h": "c",
         "abstract-syntax-tree.h": "c",
-        "symtable.h": "c"
+        "symtable.h": "c",
+        "generator.h": "c"
     },
     "cmake.configureOnOpen": true
 }

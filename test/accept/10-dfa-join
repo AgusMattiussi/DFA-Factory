@@ -22,5 +22,5 @@ auto_1 CHECK {"a", "b", "c"};
 auto_2 CHECK {"a", "b", "c"};
 
 /* COMENTARIOOOOO */
-dfa auto_3 = auto1 JOIN auto2 {final1, inicial2, "b"};
+dfa auto_3 = auto_1 JOIN auto_2 {final1, initial2, "b"};
 auto_3 CHECK {"a", "b", "c"};
