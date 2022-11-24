@@ -1,7 +1,6 @@
 #include "../support/logger.h"
 #include "generator.h"
 
-
 /**
  * Implementación de "generator.h".
  */
@@ -52,6 +51,7 @@ int DecCode(Declaration * dec){
 }
 
 static bool validateDfaVariables(DfaValue *dfaValue) {
+	LogDebug("validateDfaVariables");
 	if (!exists(st, dfaValue->initial->value, STATE_DT))
 	{
 		LogDebug("%s no es un state",  dfaValue->initial->value);
@@ -80,17 +80,8 @@ static bool validateDfaVariables(DfaValue *dfaValue) {
 	return true;
 }
 
-
-/**
- * 1) Recorro y cuento simbolos -> asigno symcount
- * 2) Recorro y cuento estados -> asigno stacount y startidx
- * 3) inicializo delta de symCount*staCount
- * 4) Recorro transiciones asigno delta[stateFrom][sym] = stateTo
- * 
-**/
-
-//TODO: Devolver -1?
 static int getIndex(ArrayValue * first, char * value){
+	LogDebug("getIndex");
 	int index = 0;
 	ArrayValue * aux = first;
 	while(aux != NULL) {
@@ -106,24 +97,22 @@ static int getIndex(ArrayValue * first, char * value){
 //TODO: Liberar cosas si algo sale mal
 static automata * 
 createAutomata(ArrayValue * symbols, ArrayValue * states, ArrayValue * finalStates, TrnArrayValue * transitions, char * initial){
+	LogDebug("createAutomata");
 	/* Inicializa variables en 0 */
 	automata * this = calloc(1, sizeof(automata));
 
-	LogDebug("Asignando valores");
 	this->symbols = symbols;
 	this->states = states;
 	this->finalStates = finalStates;
 	this->initial = initial;
 	this->transitions = transitions;
 	
-	LogDebug("Contando symbols");
 	ArrayValue * currSym = this->symbols;
 	while (currSym != NULL){
 		this->symCount++;
 		currSym = currSym->next;
 	}
 
-	LogDebug("Contando estados");
 	ArrayValue * currState = this->states;
 	while (currState != NULL){
 		/* Indice del estado inicial*/
@@ -138,7 +127,6 @@ createAutomata(ArrayValue * symbols, ArrayValue * states, ArrayValue * finalStat
 	this->currentStateIdx = this->startIdx;
 
 	this->delta = malloc(this->staCount * sizeof(size_t*));
-	LogDebug("Creando delta");
 	for (int i = 0; i < this->staCount; i++)
         this->delta[i] = malloc(this->symCount * sizeof(size_t));
 
@@ -151,9 +139,7 @@ createAutomata(ArrayValue * symbols, ArrayValue * states, ArrayValue * finalStat
 	}
 	
 	TrnArrayValue * currentTrn = this->transitions;
-	LogDebug("Agregando transiciones");
 	while (currentTrn != NULL) {
-		LogDebug("Agregando (%s) --%s--> (%s)", currentTrn->value->stateFrom, currentTrn->value->symbol, currentTrn->value->stateTo);
 		int idxStaFrom = getIndex(this->states, currentTrn->value->stateFrom);
 		int idxStaTo = getIndex(this->states, currentTrn->value->stateTo);
 		int idxSym = getIndex(this->symbols, currentTrn->value->symbol);
@@ -167,12 +153,9 @@ createAutomata(ArrayValue * symbols, ArrayValue * states, ArrayValue * finalStat
 		}
 		currentTrn = currentTrn->next;
 	}
-	LogDebug("Retornando");
 	return this;
 }
 
-// TODO: LIBERAR TODO!!!!!!!
-// TODO: Despues de los CHECKS resetear valores del DFA
 int DfaValueCode(Variable * variable, DfaValue * dfaValue) {
 	LogDebug("DfaValueCode\n");
 	if (!validateDfaVariables(dfaValue)) {
@@ -199,10 +182,11 @@ int DfaValueCode(Variable * variable, DfaValue * dfaValue) {
 }
 
 static char * getTransitionParam(VarOrString * vos, DataType type) {
+	LogDebug("getTransitionParam");
 	if(vos->type == VAR_VOST){
 		entry * stateFrom = getEntry(st, vos->variable->value);
 		if(stateFrom == NULL || stateFrom->dataType != type){
-			LogDebug(" NO ENCONTRE LA ENTRY");
+			LogDebug("No encontre la entry");
 			return NULL;
 		}
 		return (char *) stateFrom->value;
@@ -230,6 +214,7 @@ int TransitionCode(Variable * variable, Transition * trnValue) {
 }
 
 static void AddTransitionArrayValue(TrnArrayValue ** head, TransitionValue * value) {
+	LogDebug("AddTransitionArrayValue");
 	TrnArrayValue * newNode = malloc(sizeof(TrnArrayValue));
 	newNode->value = value;
 	newNode->next = NULL;
@@ -253,19 +238,15 @@ int TrnArrayCode(Variable *variable, TrnArrValue *trnArrValue) {
 	TrnArrayValue * value = NULL;
 	TransitionArr *current = trnArrValue->transitionArr;
 	entry *entry;
-	while (current != NULL)
-	{
-		if (current->transitionOrVar->type == VAR_TOVT)
-		{
-			if (!exists(st, current->transitionOrVar->variable->value, TRANSITION_DT))
-			{
+	while (current != NULL) {
+		if (current->transitionOrVar->type == VAR_TOVT) {
+			if (!exists(st, current->transitionOrVar->variable->value, TRANSITION_DT)){
 				return -1;
 			}
 			entry = getEntry(st, current->transitionOrVar->variable->value);
 			AddTransitionArrayValue(&value, (TransitionValue *)entry->value);
 		}
-		else
-		{
+		else {
 			TransitionValue * auxTrn = malloc(sizeof(TransitionValue));
 
 			auxTrn->stateFrom = getTransitionParam(current->transitionOrVar->transition->stateFrom, STATE_DT);
@@ -289,6 +270,7 @@ int TrnArrayCode(Variable *variable, TrnArrValue *trnArrValue) {
 }
 
 static int noDupAddArrayValue(ArrayValue ** head, char *value) {
+	LogDebug("noDupAddArrayValue");
 	ArrayValue * newNode = malloc(sizeof(ArrayValue));
 	newNode->value = calloc(strlen(value)+1, sizeof(char));
 	strcpy(newNode->value, value);
@@ -314,6 +296,7 @@ static int noDupAddArrayValue(ArrayValue ** head, char *value) {
 }
 
 static void ignoreDupAddArrayValue(ArrayValue ** head, char *value) {
+	LogDebug("ignoreDupAddArrayValue");
 	ArrayValue * newNode = malloc(sizeof(ArrayValue));
 	newNode->value = calloc(strlen(value)+1, sizeof(char));
 	strcpy(newNode->value, value);
@@ -338,6 +321,7 @@ static void ignoreDupAddArrayValue(ArrayValue ** head, char *value) {
 }
 
 static void AddArrayValue(ArrayValue ** head, char *value) {
+	LogDebug("AddArrayValue");
 	ArrayValue * newNode = malloc(sizeof(ArrayValue));
 	newNode->value = calloc(strlen(value)+1, sizeof(char));
 	strcpy(newNode->value, value);
@@ -397,6 +381,7 @@ int SymStaCode(Variable * variable, SymOrState * symOrSta, String * symOrStaValu
 }
 
 int ExecCode(Exec * exec) {
+	LogDebug("ExecCode");
 	switch (exec->type) {
 		case ADD_EVT:
 			return AddCode(exec->add);
@@ -415,7 +400,6 @@ int ExecCode(Exec * exec) {
 	return -1;
 }
 
-//TODO: Considerar el -f
 int PrintCode(Print * toPrint){
 	LogDebug("PrintCode");
 	fprintf(stdout, "# %s\n", toPrint->string->value);
@@ -426,7 +410,6 @@ static bool isInFinalState(automata * automata){
 	LogDebug("isInFinalState");
 	ArrayValue * final = automata->finalStates;
 
-	//TODO: Modularizar
 	ArrayValue * current = automata->states;
 	for (size_t i = 0; i < automata->currentStateIdx; i++, current = current->next);
 
@@ -439,6 +422,7 @@ static bool isInFinalState(automata * automata){
 }
 
 static printCheckOutput(char * dfaName, ArrayValue * word, bool result){
+	LogDebug("printCheckOutput");
 	ArrayValue * symbol = word;
 	printf("%s-{", dfaName);
 	while (symbol != NULL){
@@ -463,7 +447,6 @@ int CheckCode(Check * check){
 	ArrayValue * word = NULL;
 	
 	if(check->type == VAR_SSAOVT){
-		LogDebug("Es variable");
 		entry * wordEntry = getEntry(st, check->rVariable->value);
 		if(wordEntry == NULL){
 			LogDebug("La variable %s(sym[]) no esta en la tabla", check->rVariable->value);
@@ -471,7 +454,6 @@ int CheckCode(Check * check){
 		}
 		word = (ArrayValue *) wordEntry->value;
 	} else {
-		LogDebug("Es array de simbolos");
 		Array * aux = check->symOrStaArrValue->array;
 		while (aux != NULL){
 			if(aux->VarOrString->type != VAR_VOST)
@@ -484,52 +466,30 @@ int CheckCode(Check * check){
 	
 	ArrayValue * current = word;
 	int symIdx = 0;
-	// TODO: Responsabilidad de automata.c?
 	while (current != NULL){
-		LogDebug("LLegue 1");
 		symIdx = getIndex(myAuto->symbols, current->value);
-		LogDebug("LLegue 2");
-		//printf("De %zd a ", myAuto->currentStateIdx);
 
 		// No existe la transicion delta[estado][simbolo]
 		if(myAuto->currentStateIdx == myAuto->staCount ){
-			//printf("ERROR\n");
 			LogDebug("No hay transicion del estado %d con %s", myAuto->currentStateIdx, current->value);
 			break;
 		}
-		LogDebug("LLegue 3");
-		//LogDebug("El idx del simbolo es %d", symIdx);
-		//LogDebug("currentStateIdx: %zd", myAuto->currentStateIdx);
 		// El simbolo no existe en el automata
 		if(symIdx == myAuto->symCount){
-			//printf("ERROR\n");
 			LogDebug("El simbolo %s no esta en el automata", current->value);
 			break;
 		}
-		LogDebug("LLegue 4");
 
-		LogDebug("(%zd) --%s(idx:%zd)--> (%zd)", myAuto->currentStateIdx, current->value, symIdx, myAuto->delta[myAuto->currentStateIdx][symIdx]);
-		LogDebug("LLegue 5");
 		myAuto->currentStateIdx = myAuto->delta[myAuto->currentStateIdx][symIdx];
-		LogDebug("LLegue 6");
-		//printf("%zd con %s\n", myAuto->currentStateIdx, current->value);
 		current = current->next;
-		LogDebug("LLegue 7");
 	}
-	LogDebug("Sali del while");
-	//TODO: Borrar
-	if(current != NULL){
-		LogDebug("Current no es null (no termino la palabra)");
-	} else if(!isInFinalState(myAuto)){
-		LogDebug("El automata no esta en estado final");
-	}
-	LogDebug("Imprimiendo");
+
 	printCheckOutput(dfa->variableName, word,(current == NULL && isInFinalState(myAuto)));
-	LogDebug("Impreso");
 	return 0;
 }
 
 static ArrayValue * copyArrayValue(ArrayValue * old, int * count) {
+	LogDebug("copyArrayValue");
 	ArrayValue * aux = old;
 	ArrayValue * new = NULL;
 	while (aux != NULL) {
@@ -541,6 +501,7 @@ static ArrayValue * copyArrayValue(ArrayValue * old, int * count) {
 }
 
 static TrnArrayValue * copyTrnArrayValue(TrnArrayValue * old) {
+	LogDebug("copyTrnArrayValue");
 	TrnArrayValue * aux = old;
 	TrnArrayValue * new = NULL;
 	while (aux != NULL)
@@ -552,6 +513,7 @@ static TrnArrayValue * copyTrnArrayValue(TrnArrayValue * old) {
 }
 
 static void freeArrayValue(ArrayValue * array) {
+	LogDebug("freeArrayValue");
 	if (array == NULL)
 		return;
 	freeArrayValue(array->next);
@@ -560,21 +522,15 @@ static void freeArrayValue(ArrayValue * array) {
 }
 
 static void freeTrnArrayValue(TrnArrayValue * array) {
+	LogDebug("freeTrnArrayValue");
 	if (array == NULL)
 		return;
 	freeTrnArrayValue(array->next);
-	// free(array->value->stateFrom);
-	// LogDebug("Freed stateFrom");
-	// free(array->value->stateTo);
-	// LogDebug("Freed stateTo");
-	// free(array->value->symbol);
-	// LogDebug("Freed symbol");
-	// free(array->value);
-	// LogDebug("Freed value");
 	free(array);
 }
 
 static void freeAutomata(automata * toFree) {
+	LogDebug("freeAutomata");
 	freeArrayValue(toFree->states);
 	freeArrayValue(toFree->symbols);
 	freeArrayValue(toFree->finalStates);
@@ -587,14 +543,12 @@ static void freeAutomata(automata * toFree) {
 
 int AddCode(Add * add){
 	LogDebug("AddCode");
-	if (!exists(st, add->rightOperand->value, DFA_DT))
-	{
+	if (!exists(st, add->rightOperand->value, DFA_DT)){
 		return -1;
 	}
 	entry * rightOperandEntry = getEntry(st, add->rightOperand->value);
 	int freeRightOperand = 1;
-	if (strcmp(add->variable->value,add->rightOperand->value) != 0)
-	{
+	if (strcmp(add->variable->value,add->rightOperand->value) != 0){
 		freeRightOperand = 0;
 	}
 	entry * value = getEntry(st, add->variable->value);
@@ -624,37 +578,29 @@ int AddCode(Add * add){
 	TrnArrayValue * trnAux = rightOperand->transitions;
 	newDfa->transitions = copyTrnArrayValue(trnAux);
 
-	if (add->leftOperand->type == VAR_OR_STRING_TVOST) // si hay una variable/string la agrego
-	{
-		if (add->leftOperand->varOrString->type == VAR_VOST)
-		{
-			if (!exists(st, add->leftOperand->varOrString->variable->value, STATE_DT) && !exists(st, add->leftOperand->varOrString->variable->value, TRANSITION_DT))
-			{
+	if (add->leftOperand->type == VAR_OR_STRING_TVOST) { // si hay una variable/string la agrego
+		if (add->leftOperand->varOrString->type == VAR_VOST) {
+			if (!exists(st, add->leftOperand->varOrString->variable->value, STATE_DT) && !exists(st, add->leftOperand->varOrString->variable->value, TRANSITION_DT)){
 				LogDebug("No existe la leftOperand");
 				return -1;
 			}
-			else
-			{
+			else {
 				entry * new = getEntry(st, add->leftOperand->varOrString->variable->value);
-				if (new->dataType == STATE_DT)
-				{
+				if (new->dataType == STATE_DT){
 					AddArrayValue(&newDfa->states, (char*)newStates->value);
 					newDfa->staCount++;
 				}
-				else if (new->dataType == TRANSITION_DT)
-				{	
+				else if (new->dataType == TRANSITION_DT) {	
 					AddTransitionArrayValue(&newDfa->transitions, (TransitionValue*) new->value);
 				}
 			}
 		}
-		else
-		{
+		else {
 			AddArrayValue(&newDfa->states, add->leftOperand->varOrString->string->value);
 			newDfa->staCount++;
 		}
 	}
-	else if(add->leftOperand->type == TRANSITION_TVOST) // si hay una trn nueva la agrego
-	{
+	else if(add->leftOperand->type == TRANSITION_TVOST){ // si hay una trn nueva la agrego
 		TransitionValue *auxTrn = malloc(sizeof(TransitionValue));
 
 		auxTrn->stateFrom = getTransitionParam(add->leftOperand->transition->stateFrom, STATE_DT);
@@ -691,9 +637,8 @@ int AddCode(Add * add){
 
 		int idxSym = getIndex(newDfa->symbols, currentTrn->value->symbol);
 
-		if (newDfa->staCount==idxStaFrom || newDfa->staCount==idxStaTo || newDfa->symCount==idxSym)
-		{
-			LogDebug("No es psible en este automata la trn");
+		if (newDfa->staCount==idxStaFrom || newDfa->staCount==idxStaTo || newDfa->symCount==idxSym) {
+			LogDebug("La transicion no se puede agregar a este automata");
 			return -1;
 		}
 		
@@ -706,8 +651,7 @@ int AddCode(Add * add){
 		currentTrn = currentTrn->next;
 	}
 
-	if (freeRightOperand)
-	{
+	if (freeRightOperand) {
 		freeAutomata(rightOperand);
 	}
 	
@@ -716,6 +660,7 @@ int AddCode(Add * add){
 }
 
 static int remFromList(automata * myAuto, ArrayValue * list, char * state) {
+	LogDebug("remFromList");
     ArrayValue * current = list;
     if(strcmp(current->value, state) == 0) { //remuevo el primero
         myAuto->states = NULL;
@@ -818,6 +763,7 @@ int RemoveCode(Rem * rem){
 }
 
 static bool isFinal(char * state, ArrayValue * finalStates){
+	LogDebug("isFinal");
 	ArrayValue * aux = finalStates;
 	while(aux != NULL){
 		if(strcmp(state, aux->value))
@@ -855,7 +801,6 @@ int ComplementCode(Complement * complement) {
 }
 
 
-//TODO: Unificar estas dos funciones con un bool
 static ArrayValue * joinSymbols(ArrayValue * s1, ArrayValue * s2) {
 	LogDebug("joinSymbols");
 	/* Creamos un nuevo array como copia de s1*/
@@ -1011,17 +956,12 @@ static TrnArrayValue * joinTransitions(TrnArrayValue * ta1, TrnArrayValue * ta2,
 	return new;
 }
 
-//TODO: Liberar cosas en caso de error
 int JoinCode(Join * join){
 	LogDebug("JoinCode");
-	//TODO: AddIfNotExists o algo asi
-	//TODO: Liberar value si ya existia
-	// TODO: Liberar cosas si algo falla
 	if(!exists(st, join->dfaVariable->value, DFA_DT)){
 		addEntry(st, join->dfaVariable->value, DFA_DT);
 	}
 	
-	//TODO: Tengo que revisar si existen?
 	entry * lAutoEntry = getEntry(st, join->leftOperand->value);
 	if(lAutoEntry == NULL)
 		return -1;
