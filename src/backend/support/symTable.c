@@ -1,15 +1,72 @@
 #include "symTable.h"
 
-//TODO: Limpiar mallocs despues de ejecutar
-
 symbolTable * initSymbolTable(){
     return calloc(1, sizeof(symbolTable));
+}
+
+static void freeArray(ArrayValue * first) {
+    if(first == NULL)
+        return;
+    freeArray(first->next);
+    free(first->value);
+    free(first);
+}
+
+static void freeTransition(TransitionValue * trnValue) {
+    free(trnValue->stateFrom);
+    free(trnValue->stateTo);
+    free(trnValue->symbol);
+    free(trnValue);
+}
+
+static void freeTrnArray(TrnArrayValue * first) {
+    if(first == NULL)
+        return;
+    freeTrnArray(first->next);
+    freeTransition(first->value);
+    free(first);
+}
+
+static void freeDfa(automata * dfa) {
+    freeArray(dfa->symbols);
+    freeArray(dfa->states);
+    freeArray(dfa->finalStates);
+    freeTrnArray(dfa->transitions);
+    free(dfa->initial);
+    free(dfa->delta);
 }
 
 static void freeEntry(entry * firstEntry){
     if (firstEntry == NULL)
            return;
     freeEntry(firstEntry->next);
+    if(firstEntry->value != NULL) {
+        switch(firstEntry->dataType) {
+            case DFA_DT:
+                freeDfa((automata *)firstEntry->value);
+                break;
+            case TRANSITION_DT:
+                freeTransition((TransitionValue *)firstEntry->value);
+                break;
+            case STATE_DT:
+                free(firstEntry->value);
+                break;
+            case SYMBOL_DT:
+                free(firstEntry->value);
+                break;
+            case SYM_ARRAY_DT:
+                freeArray((ArrayValue *)firstEntry->value);
+                break;
+            case STATE_ARRAY_DT:
+                freeArray((ArrayValue *)firstEntry->value);
+                break;
+            case TRN_ARRAY_DT:
+                freeTrnArray((TrnArrayValue *)firstEntry->value);
+                break;
+            default:
+                break;
+        }
+    }
     free(firstEntry->variableName);
     free(firstEntry);
 }

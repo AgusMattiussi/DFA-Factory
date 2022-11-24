@@ -49,6 +49,7 @@ const int main(const int argumentCount, const char ** arguments) {
 		default:
 			LogError("Error desconocido mientras se ejecutaba el analizador Bison (codigo %d).", result);
 	}
+	// freeList(state.symbolTable);
 	LogInfo("Fin.");
 	return result;
 }

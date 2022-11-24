@@ -30,12 +30,10 @@ void EndCommentPatternAction() {
 
 void BeginStringPatternAction() {
 	LogDebug("BeginStringPatternAction.");
-	// return BEGIN_STRING;
 }
 
 void EndStringPatternAction() {
 	LogDebug("EndStringPatternAction.");
-	// return END_STRING;
 }
 
 token EqualsPatternAction(const char * lexeme){

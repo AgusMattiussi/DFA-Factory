@@ -929,7 +929,6 @@ static TrnArrayValue * joinTransitions(TrnArrayValue * ta1, TrnArrayValue * ta2,
 	TrnArrayValue * newAux = new;
 
 	/* Copiamos las transiciones de ta1 */
-	//TODO: Liberar todo en caso de NULL
 	TrnArrayValue * auxTa1 = ta1;
 	while (auxTa1 != NULL){
 		newAux->value = copyOfTransitionValue(auxTa1->value);
@@ -940,7 +939,6 @@ static TrnArrayValue * joinTransitions(TrnArrayValue * ta1, TrnArrayValue * ta2,
 	}
 
 	/* Copiamos las transiciones de ta2 */
-	//TODO: Liberar todo en caso de NULL
 	TrnArrayValue * auxTa2 = ta2;
 	while (auxTa2 != NULL){
 		newAux->value = copyOfTransitionValue(auxTa2->value);
