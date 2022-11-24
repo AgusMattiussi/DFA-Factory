@@ -391,7 +391,9 @@ int SymStaArrayCode(Variable * variable, SymOrStaArr * symOrStaArr, SymOrStaArrV
 
 int SymStaCode(Variable * variable, SymOrState * symOrSta, String * symOrStaValue) {
 	LogDebug("SymStaCode");
-	return setValue(st, variable->value, symOrStaValue->value);
+	entry * found = getEntry(st, variable->value);
+	
+	return (found->value == NULL)?setValue(st, variable->value, symOrStaValue->value):-1;
 }
 
 int ExecCode(Exec * exec) {
