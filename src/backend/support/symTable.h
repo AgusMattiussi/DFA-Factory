@@ -6,7 +6,6 @@
 #include <stdbool.h>
 #include "logger.h"
 
-
 typedef enum DataType {
     DFA_DT,
     TRANSITION_DT,

@@ -3,7 +3,6 @@ sta inicial = "q0";
 sta final = "qf";
 sta[] states = {inicial, final};
 sta[] finalStates = {final};
-sym nums = "123456789";
 sym[] symbols = {"a", "bb"};
 trn[] transitions = {
 					{inicial, final, "a"},
@@ -18,4 +17,4 @@ dfa myAuto = {
         finalStates,
 				transitions
 };
-myauto CHECK {nums};
+myAuto CHECK {"1", "a", "bb", "4"};

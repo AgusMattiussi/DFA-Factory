@@ -20,5 +20,4 @@ int ComplementCode(Complement * complement);
 int JoinCode(Join * join);
 int PrintCode(Print * toPrint);
 
-
 #endif

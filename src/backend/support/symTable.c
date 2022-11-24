@@ -39,6 +39,11 @@ static entry * addRec(entry * first, char * variableName, DataType type, int * f
 
 int addEntry(symbolTable * st, char * variableName, DataType type) {
     int added = 0;
+    if (exists(st,variableName,type))
+    {
+        return -1;
+    }
+    
     st->first = addRec(st->first, variableName, type, &added);
     st->size += added;
     return added;
@@ -71,6 +76,7 @@ int setValue(symbolTable * st, char * variableName, void * value){
     entry * found = getEntry(st, variableName);
     if(found == NULL)
         return -1;
+    
     //FIXME: por alguna razon found->value != NULL no funciona cuando el value es NULL
     // if (found->dataType != DFA_DT && found->value != NULL);
     // {

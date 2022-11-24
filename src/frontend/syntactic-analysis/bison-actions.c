@@ -1,4 +1,3 @@
-#include "../../backend/domain-specific/calculator.h"
 #include "../../backend/support/logger.h"
 #include "bison-actions.h"
 #include <stdio.h>
@@ -68,7 +67,9 @@ void DummyGrammarAction(){
 
 static void addVariable(Variable * name, DataType type){
 	LogDebug("Tratando de agregar una variable (%s)\n", name->value);
-	addEntry(state.symbolTable, name->value, type);
+	if (addEntry(state.symbolTable, name->value, type)==-1) {
+		yyerror("Cant declare the same variable twice");
+	}
 }
 
 VarOrString * VariableGrammarAction(Variable * variable) {
