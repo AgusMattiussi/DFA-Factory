@@ -173,7 +173,7 @@ int DfaValueCode(Variable * variable, DfaValue * dfaValue) {
 			this->delta[idxStaFrom][idxSym] = idxStaTo;
 		}
 		else {
-			return -1; //TODO: codigo error no es DFA
+			return -1;
 		}
 		currentTrn = currentTrn->next;
 	}
@@ -181,13 +181,11 @@ int DfaValueCode(Variable * variable, DfaValue * dfaValue) {
 	return setValue(st, variable->value, this);
 }
 
-
 static char * getTransitionParam(VarOrString * vos, DataType type) {
-	LogDebug("getTransitionParam\n");
 	if(vos->type == VAR_VOST){
 		entry * stateFrom = getEntry(st, vos->variable->value);
 		if(stateFrom == NULL || stateFrom->dataType != type){
-			LogDebug(" NO ENCONTRE LA ENTRY\n");
+			LogDebug(" NO ENCONTRE LA ENTRY");
 			return NULL;
 		}
 		return (char *) stateFrom->value;
@@ -499,7 +497,6 @@ static void freeTrnArrayValue(TrnArrayValue * array) {
 	// LogDebug("Freed value");
 	free(array);
 }
-
 
 static void freeAutomata(automata * toFree) {
 	freeArrayValue(toFree->states);
